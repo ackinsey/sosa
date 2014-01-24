@@ -5,7 +5,6 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', 'experiment.views.home', name='home'),
-    # url(r'^sosa/', include('sosa.foo.urls')),
-
+    url(r'^create/', 'experiment.views.create', name='create'),
     url(r'^admin/', include(admin.site.urls)),
 )

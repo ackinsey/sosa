@@ -1,0 +1,313 @@
+<html>
+	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+	<form method="post" id="creationForm">
+		<div id="container" style="width:800px;">
+			<fieldset> 
+			<div id="experiment_data" style="width:50%; float:left;">
+				<div id="experiment_attributes" style="width:80%; float:left;">
+				<fieldset>
+					<legend>Experiment</legend>
+					Name: <input type="text" ><br/>
+					Version: <input type="text">
+				</fieldset>
+				<br/>
+				<div>
+					Current Open File: <span id="experiment_filename" style="float:right;">No File Selected</span> 
+				</div>
+				</div>
+				<div id="experiment_buttons">
+					<input type="button" value="New"><br/>
+					<input type="button" value="Load"><br/>
+					<input type="button" value="Save"><br/>
+				</div>
+			</div>
+			<div id="board_settings" >
+				<fieldset>
+						 <legend>Board Settings</legend>
+						<div>
+						File Name: <span style="float:right;"><span id="board_filename">No File Selected</span>
+						</div>
+						<br/>
+						<div>
+						<input type="Checkbox" > Show Stimulus at relative size 
+						<span style="float:right;"><input type="button" value="Revert"></span>
+						</div>
+				</fieldset>
+				<fieldset>
+					<legend>Display</legend>
+					Window Size: <select>
+							<option>1280x720</option>
+							<option>1024x768</option>
+							<option>640x480</option>
+						</select>
+				</fieldset>
+			</div>
+			<div id="canvas_container" style="padding:10px;" >
+				<canvas style="width:100%;height:30%; border:1px solid #000000;"></canvas>
+			</div>
+			<div id="peg_creator" style="width:30%; float:left;">
+				<div>
+					<select id="order_list">
+						<option>Order 1</option>
+					</select>
+					<input type="button" id="addOrder" value="+">
+					<input type="button" id="removeOrder" value="-">
+				</div>
+				<div>
+					<table>
+						<tr>
+							<td width="200px" height="200px">
+								<select id="peg_list" style="width:100%;height:100%;" size="10"/>
+							</td>
+							<td>
+								<input type="button" value="&uarr;"><br/>
+								<input type="button" value="&darr;">
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div>
+					<input type="button" id="addStim" value="Add Stim">
+					<input type="button" id="removeStim" value="Remove Stim">
+				</div>
+			</div>	
+			<div id="peg_settings">
+				<fieldset>
+						 <legend>Peg Settings</legend>
+				<div id="peg_attributes" style="width:35%;float:left;">
+				<div>
+					Label <input type="text" id="stim_lbl" value="Unlabled 1" style="width:71%;">
+				</div>
+				<div>
+					Processing ID <input type="text" id="stim_processing_id" value="0" style="width:40%;"> 
+				</div>
+				<fieldset>
+						 <legend>File</legend>
+						 <input type="button" value="Load" id="load_file_btn">
+						 <input type="button" value="Save" id="save_file_btn">
+				</fieldset>
+				<fieldset>
+						 <legend>Type</legend>
+						 <input type="radio" class="peg_image" checked="Checked" name="Type" value="peg"> Peg <br/>
+						 <input type="radio" class="peg_image" name="Type" value="image"> Image <br/>
+				</fieldset>
+				</div>
+				<div id="peg_appearance">
+					<fieldset>
+						 <legend>Appearance</legend>
+						<div style="width:85%;float:left;text-align: center;">
+							Value
+						</div>
+						<div style="text-align: center;">
+							Default
+						</div>
+						<table>
+						<tr>
+							<td>Label Color
+							</td>
+							<td>
+								<div>
+									R <input type="range" class="color_slider" id="red_label" min="0" max="255" value="255" oninput="red_label_output.value=red_label.value"><output id="red_label_output" for="red_label">255</output>
+									<br/>
+									G <input type="range"  class="color_slider" id="green_label" min="0" max="255" value="255" oninput="green_label_output.value=green_label.value"><output id="green_label_output" for="green_label">255</output>
+									<br/>
+									B <input type="range"  class="color_slider" id="blue_label" min="0" max="255" value="255" oninput="blue_label_output.value=blue_label.value"><output id="blue_label_output" for="blue_label">255</output>
+								</div>
+							</td>
+							<td><input id="label_slider_default" type="checkbox"> 
+							</td>
+						</tr>
+						<!--style="display:none;"-->
+						<tr class="pegDisplay" >
+							<td>Peg Color
+							</td>
+							<td>
+								<div>
+									R <input type="range"  class="color_slider" id="red_peg" min="0" max="255" value="255" oninput="red_peg_output.value=red_peg.value"><output id="red_peg_output" for="red_peg">255</output>
+									<br/>
+									G <input type="range"  class="color_slider" id="green_peg" min="0" max="255" value="255" oninput="green_peg_output.value=green_peg.value"><output id="green_peg_output" for="green_peg">255</output>
+									<br/>
+									B <input type="range"  class="color_slider" id="blue_peg" min="0" max="255" value="255" oninput="blue_peg_output.value=blue_peg.value"><output id="blue_peg_output" for="blue_peg">255</output>
+								</div>
+							</td>
+							<td><input id="peg_slider_default" type="checkbox"> 
+							</td>
+						</tr>
+						<tr class="pegDisplay">
+							<td>Size/Type
+							</td>
+							<td><select>
+								<option>Small</option>
+								<option>Medium</option>
+								<option>Large</option>
+							</select>
+							</td>
+							<td>
+							</td>
+						</tr>
+						<tr class="imageDisplay" style="display:none;">
+							<td>
+									File Name:
+							</td>
+							<td>
+									No File Selected
+							</td>
+							<td>
+								 <input type="button" value="Browse">
+							</td>
+						</tr>
+						<tr class="imageDisplay" style="display:none;">
+							<td>Size/Type
+							</td>
+							<td>
+								<input type="range"  class="" id="size_type" min="2.0" max="9.9" value="2.0" step="0.1" oninput="size_type_output.value=size_type.value">
+								<output id="size_type_output" for="size_type">2.0</output>
+							</td>
+							<td>
+							</td>
+						</tr>
+					</table>
+					</fieldset>
+				</div>
+				</fieldset>
+			</div>
+			</fieldset>
+		</div>
+	</form>	
+	<script>
+		$('#addStim').on('click',function(){
+			stimulus_list[current_stim_index]=new Stimulus(current_stim_index);
+			var lbl_name="Unlabled "+($('#peg_list > option').length+1);
+			$('#peg_list').append($("<option></option>").attr("value",current_stim_index).text(stimulus_list[current_stim_index].stim_label));
+			current_stim_index++;
+		});
+		$('#removeStim').on('click',function(){
+			$("#peg_list option[value='"+$( "#peg_list option:selected" ).val()+"']").remove();
+			//stimulus_list.remove($( "#peg_list option:selected" ).val());
+			updateStimulusData();
+		});		
+
+		//JS Enumeration Hack
+		var stim_types = {peg: 0, image : 1};
+		var stimulus_list=new Array();
+		var current_stim_index = 0;
+		var sel_index=-1;
+		var DEF_LABEL_COLOR={R : 155, G : 155, B : 255};
+		var DEF_PEG_COLOR={R : 88, G : 88, B : 255};
+		
+		function Stimulus(stim_index) {
+			this.stim_index=stim_index;
+			this.stim_label="Unlabled "+(current_stim_index+1);
+			this.processing_id=0;
+			this.stim_type = stim_types.peg;
+			
+			this.label_color={R:DEF_LABEL_COLOR.R,G:DEF_LABEL_COLOR.G,B:DEF_LABEL_COLOR.B};
+			this.peg_color={R:DEF_PEG_COLOR.R,G:DEF_PEG_COLOR.G,B:DEF_PEG_COLOR.B};
+		}
+		function updateStimulusData(){
+			var stim=stimulus_list[sel_index];
+			$('#stim_lbl').val(stim.stim_label);
+			$('#stim_processing_id').val(stim.processing_id);
+
+			$('#red_label').val(stimulus_list[sel_index].label_color.R);
+			$('#green_label').val(stimulus_list[sel_index].label_color.G);
+			$('#blue_label').val(stimulus_list[sel_index].label_color.B);
+
+			$('#red_peg').val(stimulus_list[sel_index].peg_color.R);
+			$('#green_peg').val(stimulus_list[sel_index].peg_color.G);
+			$('#blue_peg').val(stimulus_list[sel_index].peg_color.B);
+
+			switchPegImage(stimulus_list[sel_index].stim_types==stim_types.image);
+			if(stimulus_list[sel_index].stim_types==stim_types.peg)
+				$('input:radio[name=Type]').filter('[value=peg]').prop('checked', true);
+			else
+				$('input:radio[name=Type]').filter('[value=image]').prop('checked', true);
+
+		}
+		$('body').on("change","#stim_lbl",function(){
+			stimulus_list[sel_index].stim_label=$('#stim_lbl').val();
+			$( "#peg_list option:selected" ).text(stimulus_list[sel_index].stim_label)
+		});
+		$("select#peg_list").change(function(){
+			sel_index=stimulus_list[$( "#peg_list option:selected" ).val()].stim_index;
+			updateStimulusData();
+		});
+		$('body').on("change","#stim_processing_id",function(){
+			stimulus_list[sel_index].processing_id=$('#stim_processing_id').val();
+		});
+
+		$(function(){
+		  $('.peg_image').click(function(){
+		    if ($(this).is(':checked'))
+		    {
+		    	switchPegImage($(this).val()=="image");  
+		    }
+		  });
+		});
+
+		$('#label_slider_default').change(function(){
+  			if($(this).is(':checked'))
+				{
+					stimulus_list[sel_index].label_color.R=DEF_LABEL_COLOR.R;
+					stimulus_list[sel_index].label_color.G=DEF_LABEL_COLOR.G;
+					stimulus_list[sel_index].label_color.B=DEF_LABEL_COLOR.B;
+					updateStimulusData();
+
+				}
+  		});
+
+		$('#peg_slider_default').change(function(){
+  			if($(this).is(':checked'))
+				{
+					stimulus_list[sel_index].peg_color.R=DEF_PEG_COLOR.R;
+					stimulus_list[sel_index].peg_color.G=DEF_PEG_COLOR.G;
+					stimulus_list[sel_index].peg_color.B=DEF_PEG_COLOR.B;
+					updateStimulusData();
+
+				}
+  		});
+
+		$(".color_slider").change(function(event){
+			var slider_type="#"+event.target.id;
+			if("#red_label"==slider_type)
+				stimulus_list[sel_index].label_color.R=parseInt($(slider_type).val());
+			else if("#green_label"==slider_type)
+				stimulus_list[sel_index].label_color.G=parseInt($(slider_type).val());
+			else if("#blue_label"==slider_type)
+				stimulus_list[sel_index].label_color.B=parseInt($(slider_type).val());
+			else if("#red_peg"==slider_type)
+				stimulus_list[sel_index].peg_color.R=$(slider_type).val();
+			else if("#green_peg"==slider_type)
+				stimulus_list[sel_index].peg_color.G=$(slider_type).val();
+			else if("#blue_peg"==slider_type)
+				stimulus_list[sel_index].peg_color.B=$(slider_type).val();
+
+			if(slider_type.indexOf("label")!=-1)
+				$('#label_slider_default').attr("checked",false);
+			else if(slider_type.indexOf("peg")!=-1)
+				$('#peg_slider_default').attr("checked",false);
+		});
+
+		$("#addOrder").on("click",function(){
+
+			$("#order_list").append($("<option></option>").attr("value",($("#order_list option").size()+1)).text("Order "+($("#order_list option").size()+1))); 
+		});
+
+		$("#removeOrder").on("click",function(){1
+			$("option[value="+($("#order_list option").size())+"]").remove();
+		});
+
+		function switchPegImage(switchToImage){
+			if(switchToImage){
+				$(".imageDisplay").css("display","");
+				$(".pegDisplay").css("display","none");
+				stimulus_list[sel_index].stim_types=stim_types.image;
+			}else{
+				$(".imageDisplay").css("display","none");
+				$(".pegDisplay").css("display","");				
+				stimulus_list[sel_index].stim_types=stim_types.peg;
+			}
+		}
+	</script>	
+</html>
+

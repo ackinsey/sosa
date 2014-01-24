@@ -1,0 +1,36 @@
+<html>
+	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+	<fieldset>
+	<div id="container">
+		<div>
+			Welcome to the SOSA data modeling software
+		</div>
+		<div>
+			You may now choose your mode, click the appropriate button for the mode you desire. 
+		</div>
+		<table>
+			<tr>
+				<td>Click here to run experiment</td>
+				<td><input id="run_experiment_btn" type="button" value="Run Experiment"/></td>
+				<td><input id="load_stimulus_btn" type="button" value="Load Stimulus Set"/></td>
+			</tr>
+			<tr>
+				<td>Click here to create a stimulus set</td>
+				<td><input id="create_stimulus_btn" type="button" value="Create Stimulus Set"/></td>
+				<td><select style="height:100%; width:100%;" multiple="multiple"/></td>
+			</tr>
+		</table>
+	<div>
+	</fieldset>
+		<script>
+			$('#run_experiment_btn').on('click',function(){
+				alert("Run Experiment");
+			});
+			$('#create_stimulus_btn').on('click',function(){
+				window.location="/create";				
+			});
+			$('#load_stimulus_btn').on('click',function(){
+				alert("Load AJAX");				
+			});
+		</script>
+</html>
