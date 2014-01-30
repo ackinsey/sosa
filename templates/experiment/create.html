@@ -1,6 +1,8 @@
 <html>
 	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-	<form method="post" id="creationForm">
+	<!--display media by using the images url <img src="{{img.url}}"></img>-->
+	<form id="creationForm" action="." method="post" enctype="multipart/form-data">
+		{% csrf_token %}  
 		<div id="container" style="width:800px;">
 			<fieldset> 
 			<div id="experiment_data" style="width:50%; float:left;">
@@ -12,20 +14,20 @@
 				</fieldset>
 				<br/>
 				<div>
-					Current Open File: <span id="experiment_filename" style="float:right;">No File Selected</span> 
+					Current Open File: <span id="experiment_filename" style="float:right;">No File Selected</span>
 				</div>
 				</div>
 				<div id="experiment_buttons">
 					<input type="button" value="New"><br/>
 					<input type="button" value="Load"><br/>
-					<input type="button" value="Save"><br/>
+					<input type="button" id="submit_btn" value="Save"><br/>
 				</div>
 			</div>
 			<div id="board_settings" >
 				<fieldset>
 						 <legend>Board Settings</legend>
 						<div>
-						File Name: <span style="float:right;"><span id="board_filename">No File Selected</span>
+						<input type="file" name="board_image">
 						</div>
 						<br/>
 						<div>
@@ -147,13 +149,13 @@
 						</tr>
 						<tr class="imageDisplay" style="display:none;">
 							<td>
-									File Name:
-							</td>
-							<td>
-									No File Selected
-							</td>
-							<td>
-								 <input type="button" value="Browse">
+										File Name:
+								</td>
+								<td>
+										No File Selected
+								</td>
+								<td>
+									 <input type="button" value="Browse">
 							</td>
 						</tr>
 						<tr class="imageDisplay" style="display:none;">
@@ -175,6 +177,15 @@
 		</div>
 	</form>	
 	<script>
+		/*http://stackoverflow.com/questions/7142890/js-remove-an-array-element-by-index-in-javascript*/
+		Array.prototype.unset = function(value) {
+			alert("hey "+value);
+		    if(value<this.length) {
+		    	alert("hey "+value);
+		        this.splice(this.indexOf(value), 1);
+		    }   
+		}
+
 		$('#addStim').on('click',function(){
 			stimulus_list[current_stim_index]=new Stimulus(current_stim_index);
 			var lbl_name="Unlabled "+($('#peg_list > option').length+1);
@@ -182,8 +193,8 @@
 			current_stim_index++;
 		});
 		$('#removeStim').on('click',function(){
-			$("#peg_list option[value='"+$( "#peg_list option:selected" ).val()+"']").remove();
-			//stimulus_list.remove($( "#peg_list option:selected" ).val());
+			var sel_val=$( "#peg_list option:selected" ).val();
+			$("#peg_list option[value='"+sel_val+"']").remove();
 			updateStimulusData();
 		});		
 
@@ -217,8 +228,8 @@
 			$('#green_peg').val(stimulus_list[sel_index].peg_color.G);
 			$('#blue_peg').val(stimulus_list[sel_index].peg_color.B);
 
-			switchPegImage(stimulus_list[sel_index].stim_types==stim_types.image);
-			if(stimulus_list[sel_index].stim_types==stim_types.peg)
+			switchPegImage(stimulus_list[sel_index].stim_type==stim_types.image);
+			if(stimulus_list[sel_index].stim_type==stim_types.peg)
 				$('input:radio[name=Type]').filter('[value=peg]').prop('checked', true);
 			else
 				$('input:radio[name=Type]').filter('[value=image]').prop('checked', true);
@@ -290,24 +301,37 @@
 
 		$("#addOrder").on("click",function(){
 
-			$("#order_list").append($("<option></option>").attr("value",($("#order_list option").size()+1)).text("Order "+($("#order_list option").size()+1))); 
+			$("#order_list").append($("<option></option>").attr("value","order_"+($("#order_list option").size()+1)).text("Order "+($("#order_list option").size()+1))); 
 		});
 
-		$("#removeOrder").on("click",function(){1
-			$("option[value="+($("#order_list option").size())+"]").remove();
+		$("#removeOrder").on("click",function(){
+			if($("#order_list option").size()>1){
+				$("option[value=order_"+($("#order_list option").size())+"]").remove();
+			}
 		});
 
 		function switchPegImage(switchToImage){
+			console.log(stimulus_list[sel_index].stim_type)
 			if(switchToImage){
 				$(".imageDisplay").css("display","");
 				$(".pegDisplay").css("display","none");
-				stimulus_list[sel_index].stim_types=stim_types.image;
+				stimulus_list[sel_index].stim_type=stim_types.image;
 			}else{
 				$(".imageDisplay").css("display","none");
 				$(".pegDisplay").css("display","");				
-				stimulus_list[sel_index].stim_types=stim_types.peg;
+				stimulus_list[sel_index].stim_type=stim_types.peg;
 			}
+			console.log(stimulus_list[sel_index].stim_type)
 		}
+		$('#submit_btn').on('click',function(){
+		    $('#creationForm').attr('action', '');
+		    alert(stimulus_list[0].stim_type);
+		    var data =  JSON.stringify({
+		        	"pegs" : stimulus_list
+		    })
+		    $('<input type="hidden" name="json"/>').val(data).appendTo('#creationForm');
+		    $("#creationForm").submit();
+		});
 	</script>	
 </html>
 
