@@ -154,7 +154,7 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 		<div id="bottomHalf" style = "width:100%;height:50%;">
 			
 			<form id = "previewForm" method = "post">
-
+				{% csrf_token %}
 				<div id="appearance" style="width:45%;float:left;">
 
 					<fieldset>
@@ -253,7 +253,7 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 
 							<tr>
 								<td align = "left">
-									Position: &nbsp;&nbsp;&nbsp;<input type="range" id = "positionSLiderLabel"name = "positionSLiderLabel" min = "1" max = "100" value = 60 oninput="pos.value=positionSLiderLabel.value">
+									Position: &nbsp;&nbsp;&nbsp;<input type="range" id = "positionSLiderLabel"name = "position" min = "1" max = "100" value = 60 oninput="pos.value=positionSLiderLabel.value">
 									<output id = "positionSLiderOutput" name="pos" for="positionSLiderLabel">60</output>
 								</td>
 								<td rowspan = "3" align = "center">
@@ -263,14 +263,14 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 							</tr>
 							<tr>
 								<td align = "left">
-									Shade:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "shadeSLiderLabel"name = "shadeSLiderLabel" min = "1" max = "100" value = 100 oninput="shade.value=shadeSLiderLabel.value"> 
+									Shade:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "shadeSLiderLabel" name = "shade" min = "1" max = "100" value = 100 oninput="shade.value=shadeSLiderLabel.value"> 
 									<output id = "shadeSLiderOutput" name="shade" for="shadeSLiderLabel">100 </output>
 								</td>
 
 							</tr>
 							<tr>
 								<td align = "left">
-									Size:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "sizeSLiderLabel" name = "sizeSLiderLabel" min = "1" max = "100" value = 75 oninput="sizeing.value=sizeSLiderLabel.value">
+									Size:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "sizeSLiderLabel" name = "size" min = "1" max = "100" value = 75 oninput="sizeing.value=sizeSLiderLabel.value">
 									<output id = "sizeSLiderOutput" name="sizeing"  for="sizeSLiderLabel">75</output>
 
 								</td>

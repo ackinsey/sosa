@@ -29,8 +29,6 @@ class Peg(models.Model):
 	def __unicode__(self):
 		return u'%s' %(self.label_text)
 
-
-
 class Preview(models.Model):
 	board_color=models.ForeignKey(Color, related_name="board_color")
 	background_color=models.ForeignKey(Color, related_name="background_color")

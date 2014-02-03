@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponseRedirect
-from experiment.models import Peg, Color
+from experiment.models import Peg, Color, Preview
 from json import dumps, loads, JSONEncoder
 from django.core.serializers import serialize
 from django.utils.functional import Promise
@@ -48,17 +48,37 @@ def create(request):
 	return render(request, 'experiment/create.html', {
     })
 
+def load(request):
+	if request.POST:
+		p = Preview()
 
+		color = Color()
+		color.red = request.POST['RSliderBoard']
+		color.blue = request.POST['BSliderBoard']
+		color.green = request.POST['GSliderBoard']
+		color.save()
 
+		p.board_color = color
 
+		color = Color()
+		color.red = request.POST['RSliderBackground']
+		color.blue = request.POST['BSliderBackground']
+		color.green = request.POST['GSliderBackground']
+		color.save()
 
+		p.background_color = color
 
+		try:
+			request.POST['labelsShow']
+		except:
+			p.show_labels = False
 
+		for field in Preview._meta.fields[4:]:
+			setattr(p, field.name, request.POST[field.name])
 
-
-
-
-
+		p.save()
+	return render(request, 'experiment/previewExperiment.html', {
+	    })
 
 
 
