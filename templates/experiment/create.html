@@ -9,8 +9,8 @@
 				<div id="experiment_attributes" style="width:80%; float:left;">
 				<fieldset>
 					<legend>Experiment</legend>
-					Name: <input type="text" ><br/>
-					Version: <input type="text">
+					Name: <input id="experiment_name" type="text" ><br/>
+					Version: <input id="experiment_version" type="text">
 				</fieldset>
 				<br/>
 				<div>
@@ -62,8 +62,8 @@
 								<select id="peg_list" style="width:100%;height:100%;" size="10"/>
 							</td>
 							<td>
-								<input type="button" value="&uarr;"><br/>
-								<input type="button" value="&darr;">
+								<input type="button" id="move_up_btn" value="&uarr;"><br/>
+								<input type="button" id="move_down_btn" value="&darr;">
 							</td>
 						</tr>
 					</table>
@@ -119,7 +119,6 @@
 							<td><input id="label_slider_default" type="checkbox"> 
 							</td>
 						</tr>
-						<!--style="display:none;"-->
 						<tr class="pegDisplay" >
 							<td>Peg Color
 							</td>
@@ -147,15 +146,14 @@
 							<td>
 							</td>
 						</tr>
-						<tr class="imageDisplay" style="display:none;">
+						<tr class="imageDisplay"  style="display:none;">
+							<td id="imageTable">
+								<input type="file" class="image_uploader" id="stim_image_0" name="stimulus_image_0">
+								<div id="stim_image_helper"></div>
+							</td>
 							<td>
-										File Name:
-								</td>
-								<td>
-										No File Selected
-								</td>
-								<td>
-									 <input type="button" value="Browse">
+							</td>
+							<td>
 							</td>
 						</tr>
 						<tr class="imageDisplay" style="display:none;">
@@ -179,74 +177,143 @@
 	<script>
 		/*http://stackoverflow.com/questions/7142890/js-remove-an-array-element-by-index-in-javascript*/
 		Array.prototype.unset = function(value) {
-			alert("hey "+value);
 		    if(value<this.length) {
-		    	alert("hey "+value);
-		        this.splice(this.indexOf(value), 1);
+		    
+		        this.splice(value, 1);
 		    }   
 		}
 
 		$('#addStim').on('click',function(){
-			stimulus_list[current_stim_index]=new Stimulus(current_stim_index);
+			stimulus_list[stimulus_list.length]=new Stimulus(current_stim_index);
 			var lbl_name="Unlabled "+($('#peg_list > option').length+1);
-			$('#peg_list').append($("<option></option>").attr("value",current_stim_index).text(stimulus_list[current_stim_index].stim_label));
 			current_stim_index++;
+			for(var i=0;i<order_list.length;i++)
+				order_list[i].order_items[order_list[i].order_items.length]=stimulus_list[stimulus_list.length-1];
+			setPegList(order_list[current_order_index].order_items);
 		});
 		$('#removeStim').on('click',function(){
-			var sel_val=$( "#peg_list option:selected" ).val();
-			$("#peg_list option[value='"+sel_val+"']").remove();
+			var n=selected_stimulus.stim_index+0;
+			for(var i=0;i<stimulus_list.length;i++)
+				if(stimulus_list[i].stim_index==n){
+					stimulus_list.unset(i);
+				}
+
+			for(var i=0;i<order_list.length;i++)
+				for(var j=0;j<order_list[i].order_items.length;j++)
+					if(order_list[i].order_items[j].stim_index==n){
+						order_list[i].order_items.unset(j);
+
+					}
+
+			setPegList(order_list[current_order_index].order_items);
 			updateStimulusData();
+
 		});		
 
 		//JS Enumeration Hack
 		var stim_types = {peg: 0, image : 1};
 		var stimulus_list=new Array();
 		var current_stim_index = 0;
-		var sel_index=-1;
+	
 		var DEF_LABEL_COLOR={R : 155, G : 155, B : 255};
 		var DEF_PEG_COLOR={R : 88, G : 88, B : 255};
-		
+		var order_list=new Array(new Order("Order 1", createDeepCopy(stimulus_list)));
+		var current_order_index=0;
+		var selected_stimulus;
+
+		function Order(order_name,items){
+			this.order_name=order_name;
+			this.order_items=items;
+
+			this.changeOrder = function(item_index,direction){
+				//move down
+				if(direction==1&&item_index<this.order_items.length-1){
+					var temp=this.order_items[item_index];
+					this.order_items[item_index]=this.order_items[item_index+1];
+					this.order_items[item_index+1]=temp;
+				}
+				//move up
+				else if(direction==-1&&item_index>0){
+					var temp=this.order_items[item_index];
+					this.order_items[item_index]=this.order_items[item_index-1];
+					this.order_items[item_index-1]=temp;
+				}
+			}
+		}
 		function Stimulus(stim_index) {
 			this.stim_index=stim_index;
-			this.stim_label="Unlabled "+(current_stim_index+1);
+			this.stim_label="Unlabled "+(stim_index+1);
 			this.processing_id=0;
 			this.stim_type = stim_types.peg;
-			
+			this.stim_image="";
+			this.image_scale=2.0;
+
 			this.label_color={R:DEF_LABEL_COLOR.R,G:DEF_LABEL_COLOR.G,B:DEF_LABEL_COLOR.B};
 			this.peg_color={R:DEF_PEG_COLOR.R,G:DEF_PEG_COLOR.G,B:DEF_PEG_COLOR.B};
+
+			this.toString=function(){
+				return this.stim_label;
+			}
 		}
+		function setPegList(order){
+			    $('#peg_list').find('option')
+			    .remove()
+			    .end();
+			    for(var i=0;i<order.length;i++){
+			    	$('#peg_list').append($("<option></option>").attr("value",order[i].stim_index).text(order[i].stim_label));
+
+			    }
+		}
+		$('#order_list').change(function(event){
+			current_order_index=$('#order_list').prop("selectedIndex");
+			setPegList(order_list[current_order_index].order_items);
+		});
 		function updateStimulusData(){
-			var stim=stimulus_list[sel_index];
-			$('#stim_lbl').val(stim.stim_label);
-			$('#stim_processing_id').val(stim.processing_id);
+			$('#stim_lbl').val(selected_stimulus.stim_label);
+			$('#stim_processing_id').val(selected_stimulus.processing_id);
 
-			$('#red_label').val(stimulus_list[sel_index].label_color.R);
-			$('#green_label').val(stimulus_list[sel_index].label_color.G);
-			$('#blue_label').val(stimulus_list[sel_index].label_color.B);
+			$('#red_label').val(selected_stimulus.label_color.R);
+			$('#green_label').val(selected_stimulus.label_color.G);
+			$('#blue_label').val(selected_stimulus.label_color.B);
 
-			$('#red_peg').val(stimulus_list[sel_index].peg_color.R);
-			$('#green_peg').val(stimulus_list[sel_index].peg_color.G);
-			$('#blue_peg').val(stimulus_list[sel_index].peg_color.B);
+			$('#red_peg').val(selected_stimulus.peg_color.R);
+			$('#green_peg').val(selected_stimulus.peg_color.G);
+			$('#blue_peg').val(selected_stimulus.peg_color.B);
 
-			switchPegImage(stimulus_list[sel_index].stim_type==stim_types.image);
-			if(stimulus_list[sel_index].stim_type==stim_types.peg)
+			$('#size_type').val(selected_stimulus.image_scale);
+			switchImageUploader();
+			switchPegImage(selected_stimulus.stim_type==stim_types.image);
+			if(selected_stimulus.stim_type==stim_types.peg)
 				$('input:radio[name=Type]').filter('[value=peg]').prop('checked', true);
 			else
 				$('input:radio[name=Type]').filter('[value=image]').prop('checked', true);
 
 		}
+		$("#stim_image").change(function(event){
+			selected_stimulus.stim_image=$(this).val();
+		});
 		$('body').on("change","#stim_lbl",function(){
-			stimulus_list[sel_index].stim_label=$('#stim_lbl').val();
-			$( "#peg_list option:selected" ).text(stimulus_list[sel_index].stim_label)
+			selected_stimulus.stim_label=$('#stim_lbl').val();
+			$( "#peg_list option:selected" ).text(selected_stimulus.stim_label)
 		});
 		$("select#peg_list").change(function(){
-			sel_index=stimulus_list[$( "#peg_list option:selected" ).val()].stim_index;
+			selected_stimulus=order_list[current_order_index].order_items[$( "#peg_list").prop("selectedIndex")];
 			updateStimulusData();
 		});
 		$('body').on("change","#stim_processing_id",function(){
-			stimulus_list[sel_index].processing_id=$('#stim_processing_id').val();
+			selected_stimulus.processing_id=$('#stim_processing_id').val();
 		});
-
+		$('#move_down_btn').on('click',function(){
+			order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),1);
+			setPegList(order_list[current_order_index].order_items);
+		});
+		$('#move_up_btn').on('click',function(){
+			order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),-1);
+			setPegList(order_list[current_order_index].order_items);
+		});
+		$("#size_type").change(function(event){
+			selected_stimulus.image_scale=$(this).val();
+		});
 		$(function(){
 		  $('.peg_image').click(function(){
 		    if ($(this).is(':checked'))
@@ -259,9 +326,9 @@
 		$('#label_slider_default').change(function(){
   			if($(this).is(':checked'))
 				{
-					stimulus_list[sel_index].label_color.R=DEF_LABEL_COLOR.R;
-					stimulus_list[sel_index].label_color.G=DEF_LABEL_COLOR.G;
-					stimulus_list[sel_index].label_color.B=DEF_LABEL_COLOR.B;
+					selected_stimulus.label_color.R=DEF_LABEL_COLOR.R;
+					selected_stimulus.label_color.G=DEF_LABEL_COLOR.G;
+					selected_stimulus.label_color.B=DEF_LABEL_COLOR.B;
 					updateStimulusData();
 
 				}
@@ -270,9 +337,9 @@
 		$('#peg_slider_default').change(function(){
   			if($(this).is(':checked'))
 				{
-					stimulus_list[sel_index].peg_color.R=DEF_PEG_COLOR.R;
-					stimulus_list[sel_index].peg_color.G=DEF_PEG_COLOR.G;
-					stimulus_list[sel_index].peg_color.B=DEF_PEG_COLOR.B;
+					selected_stimulus.peg_color.R=DEF_PEG_COLOR.R;
+					selected_stimulus.peg_color.G=DEF_PEG_COLOR.G;
+					selected_stimulus.peg_color.B=DEF_PEG_COLOR.B;
 					updateStimulusData();
 
 				}
@@ -281,17 +348,17 @@
 		$(".color_slider").change(function(event){
 			var slider_type="#"+event.target.id;
 			if("#red_label"==slider_type)
-				stimulus_list[sel_index].label_color.R=parseInt($(slider_type).val());
+				selected_stimulus.label_color.R=parseInt($(slider_type).val());
 			else if("#green_label"==slider_type)
-				stimulus_list[sel_index].label_color.G=parseInt($(slider_type).val());
+				selected_stimulus.label_color.G=parseInt($(slider_type).val());
 			else if("#blue_label"==slider_type)
-				stimulus_list[sel_index].label_color.B=parseInt($(slider_type).val());
+				selected_stimulus.label_color.B=parseInt($(slider_type).val());
 			else if("#red_peg"==slider_type)
-				stimulus_list[sel_index].peg_color.R=$(slider_type).val();
+				selected_stimulus.peg_color.R=$(slider_type).val();
 			else if("#green_peg"==slider_type)
-				stimulus_list[sel_index].peg_color.G=$(slider_type).val();
+				selected_stimulus.peg_color.G=$(slider_type).val();
 			else if("#blue_peg"==slider_type)
-				stimulus_list[sel_index].peg_color.B=$(slider_type).val();
+				selected_stimulus.peg_color.B=$(slider_type).val();
 
 			if(slider_type.indexOf("label")!=-1)
 				$('#label_slider_default').attr("checked",false);
@@ -300,8 +367,9 @@
 		});
 
 		$("#addOrder").on("click",function(){
-
-			$("#order_list").append($("<option></option>").attr("value","order_"+($("#order_list option").size()+1)).text("Order "+($("#order_list option").size()+1))); 
+			var new_index=$("#order_list option").size();
+			order_list[new_index]=new Order("Order "+new_index,createDeepCopy(stimulus_list));
+			$("#order_list").append($("<option></option>").attr("value","order_"+(new_index+1)).text("Order "+(new_index+1)));
 		});
 
 		$("#removeOrder").on("click",function(){
@@ -309,28 +377,47 @@
 				$("option[value=order_"+($("#order_list option").size())+"]").remove();
 			}
 		});
-
+		function createDeepCopy(items){
+				var copied_items=new Array();
+				for(var i=0;i<items.length;i++){
+					copied_items[i]=items[i];
+				}
+				return copied_items;
+			}
 		function switchPegImage(switchToImage){
-			console.log(stimulus_list[sel_index].stim_type)
 			if(switchToImage){
 				$(".imageDisplay").css("display","");
 				$(".pegDisplay").css("display","none");
-				stimulus_list[sel_index].stim_type=stim_types.image;
+				selected_stimulus.stim_type=stim_types.image;
 			}else{
 				$(".imageDisplay").css("display","none");
 				$(".pegDisplay").css("display","");				
-				stimulus_list[sel_index].stim_type=stim_types.peg;
+				selected_stimulus.stim_type=stim_types.peg;
 			}
-			console.log(stimulus_list[sel_index].stim_type)
+		}
+		function switchImageUploader(){
+			$('.image_uploader').css("display","none");
+			if($('#stim_image_'+selected_stimulus.stim_index).length <= 0){
+				$("#imageTable").append('<input type="file" class="image_uploader" id="stim_image_'+selected_stimulus.stim_index+'" name="stimulus_image_'+selected_stimulus.stim_index+'">');
+			}
+			$('#stim_image_'+selected_stimulus.stim_index).css("display","");
 		}
 		$('#submit_btn').on('click',function(){
 		    $('#creationForm').attr('action', '');
-		    alert(stimulus_list[0].stim_type);
+		    var experiment={
+		    	"name":$('#experiment_name').val(),
+		    	"version":$('#experiment_version').val(),
+		    	"show_stim":true,
+		    	"window_x":1024,
+		    	"window_y":768,
+		    };
 		    var data =  JSON.stringify({
-		        	"pegs" : stimulus_list
+		    		"experiment":experiment,
+		        	"pegs" : stimulus_list,
+		        	"orders" : order_list,
 		    })
 		    $('<input type="hidden" name="json"/>').val(data).appendTo('#creationForm');
-		    $("#creationForm").submit();
+		   $("#creationForm").submit();
 		});
 	</script>	
 </html>
