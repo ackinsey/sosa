@@ -6,6 +6,7 @@ from django.utils.functional import Promise
 from django.utils.encoding import force_text
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
+from settings import MEDIA_URL
 import json
 
 
@@ -58,6 +59,7 @@ def create(request):
 				order_item.save()
 		return HttpResponseRedirect('/')
 	return render(request, 'experiment/create.html', {
+		"MEDIA_URL":MEDIA_URL
     })
 
 def load(request):
@@ -89,5 +91,12 @@ def load(request):
 			setattr(p, field.name, request.POST[field.name])
 
 		p.save()
+	experiment=Experiment.objects.all()[0]
+	orders=Order.objects.filter(experiment=experiment)
+	stim_orders=[]
+	for order in orders:
+		stim_orders.append(OrderItem.objects.filter(order=order))
 	return render(request, 'experiment/previewExperiment.html', {
+		"orders":stim_orders,
+		"experiment":experiment,
 	    })

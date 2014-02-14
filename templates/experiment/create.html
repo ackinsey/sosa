@@ -27,7 +27,7 @@
 				<fieldset>
 						 <legend>Board Settings</legend>
 						<div>
-						<input type="file" name="board_image">
+						<input type="file" id="board_image" name="board_image">
 						</div>
 						<br/>
 						<div>
@@ -45,7 +45,7 @@
 				</fieldset>
 			</div>
 			<div id="canvas_container" style="padding:10px;" >
-				<canvas style="width:100%;height:30%; border:1px solid #000000;"></canvas>
+				<canvas id="create_canvas" width="800px" height="300px" style="border:1px solid #000000;"></canvas>
 			</div>
 			<div id="peg_creator" style="width:30%; float:left;">
 				<div>
@@ -148,7 +148,7 @@
 						</tr>
 						<tr class="imageDisplay"  style="display:none;">
 							<td id="imageTable">
-								<input type="file" class="image_uploader" id="stim_image_0" name="stimulus_image_0">
+								<input type="file" class="image_uploader"  onchange="updateImage(this);" id="stim_image_0" name="stimulus_image_0">
 								<div id="stim_image_helper"></div>
 							</td>
 							<td>
@@ -190,6 +190,12 @@
 			for(var i=0;i<order_list.length;i++)
 				order_list[i].order_items[order_list[i].order_items.length]=stimulus_list[stimulus_list.length-1];
 			setPegList(order_list[current_order_index].order_items);
+
+			$('#peg_settings :input').prop("disabled",false);
+			$('#peg_list > option').last().prop("selected",true)
+			selected_stimulus=order_list[current_order_index].order_items[order_list[current_order_index].order_items.length-1];
+			updateStimulusData();
+			reDrawCanvas();
 		});
 		$('#removeStim').on('click',function(){
 			var n=selected_stimulus.stim_index+0;
@@ -204,7 +210,7 @@
 						order_list[i].order_items.unset(j);
 
 					}
-
+			$('#peg_settings :input').prop("disabled",true);
 			setPegList(order_list[current_order_index].order_items);
 			updateStimulusData();
 
@@ -221,6 +227,64 @@
 		var current_order_index=0;
 		var selected_stimulus;
 
+		$('#peg_settings :input').prop("disabled",true);
+
+		var canvas = $("#create_canvas")[0]
+		var c=canvas.getContext("2d");
+		var backgroundColor = "rgb(0,0,0)";
+		var font = "24px Arial";
+
+		reDrawCanvas();
+		function reDrawCanvas(){
+			c.clearRect(0,0,canvas.width,canvas.height);
+			drawBackground();
+			if(selected_stimulus!=null)
+				drawStim();
+		}
+		//http://127.0.0.1/
+		var peg_image=new Image();
+		var stim_image=new Image();
+		var board_image=new Image();
+		peg_image.src="{{MEDIA_URL}}/peg.png";
+		function drawStim(){
+			c.textAlign = 'center';
+			c.fillStyle = "rgb("+selected_stimulus.label_color.R+","+selected_stimulus.label_color.G+","+selected_stimulus.label_color.B+")";
+			c.font = font;
+			var label=selected_stimulus.toString();
+			var img_file=$("#stim_image_"+selected_stimulus.stim_index);
+			if(img_file.val()<=0){		
+				c.drawImage(peg_image,canvas.width/4-(peg_image.width/2),canvas.height/2-(peg_image.height/2),peg_image.width,peg_image.height);
+			}else{
+				c.drawImage(stim_image,canvas.width/4-50,canvas.height/2-50,100,100);
+			}
+				var x=(canvas.width/4) -(c.measureText(label).width/2);
+				c.fillText(label,canvas.width/4,canvas.height/4);
+		}
+		/*http://stackoverflow.com/questions/4459379/preview-an-image-before-it-is-uploaded*/
+		function readURL(input,image) {
+		    if (input.files && input.files[0]) {
+		        var reader = new FileReader();;
+		        reader.onload = function (e) {
+		         image.src = e.target.result;
+		         selected_stimulus.image_data=image.src;
+				 reDrawCanvas();
+		        }
+		        reader.readAsDataURL(input.files[0]);
+		    }
+		}
+
+		function drawBackground(){
+			c.fillStyle = backgroundColor;
+			c.fillRect(0,0,canvas.width,canvas.height);
+			if($("#board_image").val().length>0)
+			{
+            	c.drawImage(board_image,canvas.width*3/4-100,canvas.height/2-100,200,200);
+			}else{
+				c.fillStyle="white";
+				c.fillRect(500,50,200,200);
+
+			}
+		}
 		function Order(order_name,items){
 			this.order_name=order_name;
 			this.order_items=items;
@@ -247,7 +311,7 @@
 			this.stim_type = stim_types.peg;
 			this.stim_image="";
 			this.image_scale=2.0;
-
+			this.image_data="";
 			this.label_color={R:DEF_LABEL_COLOR.R,G:DEF_LABEL_COLOR.G,B:DEF_LABEL_COLOR.B};
 			this.peg_color={R:DEF_PEG_COLOR.R,G:DEF_PEG_COLOR.G,B:DEF_PEG_COLOR.B};
 
@@ -267,6 +331,8 @@
 		$('#order_list').change(function(event){
 			current_order_index=$('#order_list').prop("selectedIndex");
 			setPegList(order_list[current_order_index].order_items);
+			selected_stimulus=order_list[current_order_index].order_items[$( "#peg_list").prop("selectedIndex")];
+			$('#peg_list > option').find(":eq("+current_order_index+")").prop("selected",true);		
 		});
 		function updateStimulusData(){
 			$('#stim_lbl').val(selected_stimulus.stim_label);
@@ -287,18 +353,23 @@
 				$('input:radio[name=Type]').filter('[value=peg]').prop('checked', true);
 			else
 				$('input:radio[name=Type]').filter('[value=image]').prop('checked', true);
-
+			reDrawCanvas();
+			stim_image.src=selected_stimulus.image_data;
 		}
-		$("#stim_image").change(function(event){
-			selected_stimulus.stim_image=$(this).val();
-		});
+		function updateImage(event){
+			selected_stimulus.stim_image=$(event).val();
+			readURL(event,stim_image);
+		}
 		$('body').on("change","#stim_lbl",function(){
 			selected_stimulus.stim_label=$('#stim_lbl').val();
 			$( "#peg_list option:selected" ).text(selected_stimulus.stim_label)
+			reDrawCanvas();
 		});
 		$("select#peg_list").change(function(){
+			$('#peg_settings :input').prop("disabled",false);
 			selected_stimulus=order_list[current_order_index].order_items[$( "#peg_list").prop("selectedIndex")];
 			updateStimulusData();
+			reDrawCanvas();
 		});
 		$('body').on("change","#stim_processing_id",function(){
 			selected_stimulus.processing_id=$('#stim_processing_id').val();
@@ -322,7 +393,6 @@
 		    }
 		  });
 		});
-
 		$('#label_slider_default').change(function(){
   			if($(this).is(':checked'))
 				{
@@ -377,6 +447,9 @@
 				$("option[value=order_"+($("#order_list option").size())+"]").remove();
 			}
 		});
+		$('#board_image').on("change",function(){
+			readURL(this,board_image);
+		});
 		function createDeepCopy(items){
 				var copied_items=new Array();
 				for(var i=0;i<items.length;i++){
@@ -398,7 +471,7 @@
 		function switchImageUploader(){
 			$('.image_uploader').css("display","none");
 			if($('#stim_image_'+selected_stimulus.stim_index).length <= 0){
-				$("#imageTable").append('<input type="file" class="image_uploader" id="stim_image_'+selected_stimulus.stim_index+'" name="stimulus_image_'+selected_stimulus.stim_index+'">');
+				$("#imageTable").append('<input type="file" onchange="updateImage(this);" class="image_uploader" id="stim_image_'+selected_stimulus.stim_index+'" name="stimulus_image_'+selected_stimulus.stim_index+'">');
 			}
 			$('#stim_image_'+selected_stimulus.stim_index).css("display","");
 		}
