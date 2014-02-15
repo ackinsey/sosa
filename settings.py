@@ -1,4 +1,4 @@
-# Django settings for sosa project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -13,13 +13,8 @@ MANAGERS = ADMINS
 #http://stackoverflow.com/questions/11170133/using-mysql-with-django-access-denied-for-user-localhost fixed it
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sosa',
-        # The following settings are not used with sqlite3:
-        'USER': 'mydb_user',
-        'PASSWORD': 'password',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join("/data/sosa/", 'sosa.db'),
     }
 }
 
