@@ -28,7 +28,9 @@ def create(request):
 		experiment.save()
 
 		for index,json_peg in enumerate(stimulus_data):
-			stimulus=Stimulus(experiment=experiment,form_id=json_peg.get('stim_index', 'not found'),label_text=json_peg.get('stim_label', 'not found'),
+			text = json_peg.get('stim_label', 'not found')
+			text = text.replace(' ', '_')
+			stimulus=Stimulus(experiment=experiment,form_id=json_peg.get('stim_index', 'not found'),label_text=text,
 				processingID=json_peg.get('processing_id', 'not found'),
 				is_peg=json_peg.get('stim_type', 'not found'))
 			
@@ -100,3 +102,19 @@ def load(request):
 		"orders":stim_orders,
 		"experiment":experiment,
 	    })
+
+
+def run(request):
+	experiment=Experiment.objects.all()[0]
+	stimuli=Stimulus.objects.filter(experiment=experiment)
+	return render(request, 'experiment/SOSAModelingExperiment.html', {
+		"stimuliList":stimuli,
+		"experiment":experiment,
+})
+
+def finish(request):
+	for key, value in request.POST.iteritems():
+		print key, value
+
+	return render(request, 'experiment/index.html', {
+	})

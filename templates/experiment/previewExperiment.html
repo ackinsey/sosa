@@ -30,9 +30,6 @@
 	});
 
 
-
-
-
 /***Default checkboxes and slider stuff**////
 $(document).ready(function(){
 	/******Changes The slider and the value count of the slider to its default value when the default checkbox is clicked*****/
@@ -62,6 +59,7 @@ $(document).ready(function(){
 				$("#shadeSLiderOutput").val(100);
 				$("#sizeSLiderLabel").val(75);
 				$("#sizeSLiderOutput").val(75);
+
 			}
 		}
 		else{
@@ -126,7 +124,13 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 	if(slide1.val() == value1 && slide2.val() == value2 && slide3.val() == value3)
 		checkboxToCheck.prop('checked', true)
 }
-/********************************************************************************************************************************/</script>
+/********************************************************************************************************************************/
+</script>
+
+
+
+
+
 
 </head>
 <body>
@@ -135,17 +139,17 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 		
 		<div id = "topHalf" style = "width:100%;height:50%;">
 
-			<div id="presentationAndStimuli" style="height:100%;float:left;margin-left:2%;">
-				<b>Presentation Order</b>
-				
-				<select id = "presentationOrderSelect" style = "width:100%; height: 44%" multiple="multiple"/></select>
-				
-				<b>Stimuli</b>
-				
-				<select id = "stimuli order Select" style = "width:100%; height: 44%"multiple="multiple"/></select>
+			<div id="presentationAndStimuli" style="width:25%;height:100%;float:left;">
+				<span style = "width:100%;height:10%"><b>Presentation Order</b></span>
+				<br>
+
+				<select id = "presentationOrderSelect" style = "width:100%; height: 40%; float:left" multiple="multiple"/></select>
+				<span style = "width:100%;height:10%"><b>Stimuli</b></span>
+
+				<select id = "stimuli order Select" style = "width:100%; height: 45%; float:left"multiple="multiple"/></select>
 			</div>
 
-			<div id="canvas" style="width:68%;height:94.5%;float:left;margin-left: 2%;margin-top: 2.25%;">
+			<div id="canvas" style="width:75%;height:94.5%;float:left;">
 				<canvas id = "PreviewCanvas"  style="border:1px solid #000000;height:100%; width:100%;"></canvas>
 			</div>
 		</div>
@@ -154,7 +158,7 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 		<div id="bottomHalf" style = "width:100%;height:50%;">
 			
 			<form id = "previewForm" method = "post">
-				{% csrf_token %}
+
 				<div id="appearance" style="width:45%;float:left;">
 
 					<fieldset>
@@ -162,11 +166,12 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 
 						<table>
 							<tr>
-								<td></td>
-								<td align = "left"style = "width:100%">
+								
+								<td align = "center" colspan = "2" style = "width:100%">
 									Value
 								</td>
-								<td style="width:100%">
+
+								<td colspan = "2"align = "left"style="width:100%">
 									Default
 								</td>
 							</tr>
@@ -177,7 +182,9 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 								</td>
 								<td align = "left">
 									R:<input type="range" id = "RSliderBoard" name = "RSliderBoard" min = "0" max = "255" value = 255 oninput="RSliderBoardOutput.value=RSliderBoard.value"> 
-									<output id="RSliderBoardOutput" name="RSliderBoardOutput" for="RSliderBoard">255</output>
+									<td>
+										<output id="RSliderBoardOutput" name="RSliderBoardOutput" for="RSliderBoard">255</output>
+									</td>
 								</td>
 								<td rowspan = "3" align = "left">
 									<input type = "checkbox"  id = "defaultBoardCheckbox" name = "defaultBoardCheckbox" checked> 
@@ -187,14 +194,18 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 							<tr>
 								<td align = "left">
 									G:<input type="range" id = "GSliderBoard"name = "GSliderBoard" min = "0" max = "255" value = 255 oninput="GSliderBoardOutput.value=GSliderBoard.value"> 
-									<output id="GSliderBoardOutput" name="GSliderBoardOutput" for="GSliderBoard">255</output>
+									<td>
+										<output id="GSliderBoardOutput" name="GSliderBoardOutput" for="GSliderBoard">255</output>
+									</td>
 								</td>
 
 							</tr>
 							<tr>
 								<td align = "left">
 									B:<input type="range" id = "BSliderBoard" name = "BSliderBoard" min = "0" max = "255" value = 255 oninput="BSliderBoardOutput.value=BSliderBoard.value">
-									<output id="BSliderBoardOutput" name="BSliderBoardOutput" for="BSliderBoard">255</output>
+									<td>
+										<output id="BSliderBoardOutput" name="BSliderBoardOutput" for="BSliderBoard">255</output>
+									</td>
 								</td>
 
 							</tr>
@@ -206,7 +217,9 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 								<td rowspan = "3" align = "left" style ="width:15%"> Background&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 								<td align = "left">
 									R:<input type="range" id = "RSliderBackground"name = "RSliderBackground" min = "0" max = "255" value = 0 oninput="RSliderBackgroundOutput.value=RSliderBackground.value"> 
-									<output id = "RSliderBackgroundOutput" name="RSliderBackgroundOutput" for="RSliderBackground">0</output>
+									<td>
+										<output id = "RSliderBackgroundOutput" name="RSliderBackgroundOutput" for="RSliderBackground">0</output>
+									</td>
 								</td>
 								<td rowspan ="3" align = "left">
 									<input type = "checkbox" id = "defaultBackgroundCheckbox" name = "defaultBackgroundCheckbox" checked>
@@ -215,130 +228,283 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 							<tr>
 								<td align = "left">
 									G:<input type="range" id = "GSliderBackground"name = "GSliderBackground" min = "0" max = "255" value = 0 oninput="GSliderBackgroundOutput.value=GSliderBackground.value">
-									<output id = "GSliderBackgroundOutput" name="GSliderBackgroundOutput" for="GSliderBackground">0</output>
+									<td>
+										<output id = "GSliderBackgroundOutput" name="GSliderBackgroundOutput" for="GSliderBackground">0</output>
+									</td>
 								</td>
 							</tr>
 							<tr>
 								<td align = "left">
 									B:<input type="range" id = "BSliderBackground"name = "BSliderBackground" min = "0" max = "255" value = 0 oninput="BSliderBackgroundOutput.value=BSliderBackground.value">
-									<output id = "BSliderBackgroundOutput" name="BSliderBackgroundOutput" for="BSliderBackground">0</output>
-
+									<td>
+										<output id = "BSliderBackgroundOutput" name="BSliderBackgroundOutput" for="BSliderBackground">0</output>
+									</td>
 								</td>
 							</tr>
 							<tr>
-								<td colspan = "3" align = "left">
+								<td colspan = "4" align = "right">
 									<input type = "button" id = "HideBoardBackgroundBtn"name = "Hide board background" value =  "Hide board background">	
 								</td>
 							</tr>			
 						</table>
 						
- 					</fieldset>
-
-				</div>
-
-				<div id="labelsDiv" style="width:35%;margin-left:45%;float:left;margin-top:-32%;">
-
-					<fieldset>
-						<legend>Labels</legend>
-
-						<table>
-							<tr>
-								<td align = "left"style = "width:90%;height:5%">
-									<input type = "checkbox"  id = "labelsShow" name = "labelsShow"style = "float:right;margin-right:73%;margin-top:-9%" checked></td> Show
-								</td>
-								<td >
-									<p style = "margin-top:-50%;margin-bottom: 0;">Default</p>
-								</td>
-							</tr>
-
-							<tr>
-								<td align = "left">
-									Position: &nbsp;&nbsp;&nbsp;<input type="range" id = "positionSLiderLabel"name = "position" min = "1" max = "100" value = 60 oninput="pos.value=positionSLiderLabel.value">
-									<output id = "positionSLiderOutput" name="pos" for="positionSLiderLabel">60</output>
-								</td>
-								<td rowspan = "3" align = "center">
-									<input type = "checkBox" id = "defaultLabelOutput" name = "defaultLabelOutput" checked>
-								</td>
-
-							</tr>
-							<tr>
-								<td align = "left">
-									Shade:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "shadeSLiderLabel" name = "shade" min = "1" max = "100" value = 100 oninput="shade.value=shadeSLiderLabel.value"> 
-									<output id = "shadeSLiderOutput" name="shade" for="shadeSLiderLabel">100 </output>
-								</td>
-
-							</tr>
-							<tr>
-								<td align = "left">
-									Size:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="range" id = "sizeSLiderLabel" name = "size" min = "1" max = "100" value = 75 oninput="sizeing.value=sizeSLiderLabel.value">
-									<output id = "sizeSLiderOutput" name="sizeing"  for="sizeSLiderLabel">75</output>
-
-								</td>
-							</tr>
-
-						</table>
-						
 					</fieldset>
 
 				</div>
+				<div id = "labels/import" style = "width:35%;float:left">
 
-				<div id="logOutputLocationDiv" style="width:20%;margin-left:80%">
+					<div id="labelsDiv" style="width:100%;float:left;">
 
-					<fieldset>
-						<legend>Log Output Location</legend>
+						<fieldset>
+							<legend>Labels</legend>
+
+							<table>
+								<tr>
+									<td>
+										Show
+									</td>
+									<td align = "left">
+										<input type = "checkbox"  id = "labelsShow" name = "labelsShow" checked>
+									</td> 
+
+									<td >
+										Default
+									</td>
 
 
-						<p id = "logOutputLocationString"> no location chosen...</p>
+								</tr>
+
+								<tr>
+									<td>Position:</td>
+									<td align = "left">
+										<input type="range" id = "positionSLiderLabel"name = "positionSLiderLabel" min = "1" max = "100" value = 60 oninput="pos.value=positionSLiderLabel.value">
+										<td>
+											<output id = "positionSLiderOutput" name="pos" for="positionSLiderLabel">60</output>
+										</td>
+									</td>
+									<td rowspan = "3" align = "center">
+										<input type = "checkBox" id = "defaultLabelOutput" name = "defaultLabelOutput" checked>
+									</td>
+
+								</tr>
+								<tr>
+									<td>Shade:</td>
+									<td align = "left">
+
+										<input type="range" id = "shadeSLiderLabel"name = "shadeSLiderLabel" min = "1" max = "100" value = 100 oninput="shade.value=shadeSLiderLabel.value"> 
+										<td>
+											<output id = "shadeSLiderOutput" name="shade" for="shadeSLiderLabel">100 </output>
+										</td>
+									</td>
+
+								</tr>
+								<tr>
+									<td>Size:</td>
+									<td align = "left">
+										<input type="range" id = "sizeSLiderLabel" name = "sizeSLiderLabel" min = "1" max = "100" value = 75 oninput="sizeing.value=sizeSLiderLabel.value">
+										<td>
+											<output id = "sizeSLiderOutput" name="sizeing"  for="sizeSLiderLabel">75</output>
+										</td>
+
+									</td>
+								</tr>
+
+							</table>
+
+						</fieldset>
+
+					</div>
+
+					<div id="Import_Export" style="width:100%;float:left">
+
+						<fieldset>
+							<legend>Import/Export Settings</legend>
 
 
-						<input type = "button" id = "logOutputLocationBtn" value = "choose">
+							<span id = "fileLocation"> no location chosen...</span>
+
+							<br>
+							<input type = "button" id = "importSettingsBtn" value = "import settings">
+
+							<input type = "button" id = "exportSettingsBtn" value = "export settings">
+
+						</div>
 					</fieldset>
-
 				</div>
+				<div id = "logAndBoardAndLaunch" style = "width:20%;float:left">
+					<div id="logOutputLocationDiv" style="width:100%;float:left">
+
+						<fieldset>
+							<legend>Log Output Location</legend>
 
 
-				<div id="Board" style="width:20%;float:left;margin-left: 80%; margin-top:-18%">
+							<p id = "logOutputLocationString"> no location chosen...</p>
 
-					<fieldset>
-						<legend>Board</legend>
 
-						<span id = "tilt"> Tilt:</span>
-						<br>
+							<input type = "button" id = "logOutputLocationBtn" value = "choose">
+						</fieldset>
 
-						<span id = "default"> Default:</span>
-						<br>
+					</div>
 
-						<input type = "button" id = "boardTiltBtn"  style = "width:100%"value = "Set Board Tilt">
 
-					</fieldset>
+					<div id="Board" style="width:100%;float:left;">
 
+						<fieldset>
+							<legend>Board</legend>
+
+							<span id = "tilt"> Tilt:</span>
+							<br>
+
+							<span id = "default"> Default:</span>
+							<br>
+
+							<input type = "button" id = "boardTiltBtn"  style = "width:100%"value = "Set Board Tilt">
+
+						</fieldset>
+
+					</div>
+					<div id="launch" style="width:100%;float:right;">
+
+						<input type = "button" id = "launchExperimentBtn" value = "launch Experiment">
+					</div>
 				</div>
+				
 
 
-				<div id="Import_Export" style="width:30%;float:left">
-
-					<fieldset>
-						<legend>Import/Export Settings</legend>
-
-
-						<span id = "fileLocation"> no location chosen...</span>
-
-						<br>
-						<input type = "button" id = "importSettingsBtn" value = "import settings">
-
-						<input type = "button" id = "exportSettingsBtn" value = "export settings">
-
-
-					</fieldset>
-
-				</div>
-				<div id="launch" style="width:30%;float:left;margin-left:55%;margin-top:-10%">
-
-					<input type = "button" id = "launchExperimentBtn" value = "launch Experiment">
-				</div>
-			</div>
-		</form>
-
+			</form>
+		</div>
 	</div>
+
+	<script>
+//init canvas
+var canvas = $("#PreviewCanvas")[0]
+var c=canvas.getContext("2d");
+
+//slider Values	
+var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider = $("#shadeSLiderLabel").val();
+
+//Default Values
+var labelYPos = 100, labelXPos = 100;
+var textColor = "#69C"
+var font = $("#sizeSLiderLabel").val() + "px Arial";
+
+var backgroundColor = "rgb(" + $("#RSliderBackground").val() + "," + $("#GSliderBackground").val() + "," + $("#BSliderBackground").val() + ")";
+
+$(document).ready(function(){
+	reDrawCanvas();
+});
+
+//If you check the default label box
+$("#defaultLabelOutput").change(function(){
+	if(this.checked){
+		changeSize(75);
+		changeLum(100);
+		changePosition(60);
+	}
+});
+//*****************
+
+//If you check the default background box
+$("#defaultBackgroundCheckbox").change(function(){
+	if(this.checked){
+		backgroundColor = "rgb(0,0,0)";
+		reDrawCanvas();
+	}
+});
+//*****************
+
+//if you slide the background sliders
+$("#RSliderBackground").change(function(){
+	changeBoardBackground();
+});
+$("#GSliderBackground").change(function(){
+	changeBoardBackground();
+});
+$("#BSliderBackground").change(function(){
+	changeBoardBackground();
+});
+//******************************
+
+
+//if you slide the label sliders
+$("#shadeSLiderLabel").change(function(){
+	changeLum($("#shadeSLiderLabel").val());
+});
+
+$("#sizeSLiderLabel").change(function(){
+	changeSize($("#sizeSLiderLabel").val());
+});
+
+$("#positionSLiderLabel").change(function(){
+	changePosition($("#positionSLiderLabel").val());
+});
+//************************
+
+function changeLum(currentPosOfShadeSlider){
+	var changePosition = parseInt(currentPosOfShadeSlider) - parseInt(prevPosOfShadeSlider);
+	textColor = ColorLuminance(textColor,changePosition/100);
+	reDrawCanvas();
+	prevPosOfShadeSlider = currentPosOfShadeSlider;
+}
+
+function changePosition(currentPosOfSlider){
+	var changePosition = parseInt(currentPosOfSlider) - parseInt(prevPosOfPosSlider);
+	labelYPos+=(changePosition*-1);
+	reDrawCanvas();
+	prevPosOfPosSlider = currentPosOfSlider;
+}
+
+function changeSize(currentPosOfSizeSlider){	
+	
+	font= currentPosOfSizeSlider + "px Arial";
+	reDrawCanvas();
+	
+}
+
+//Takes in a color and a % to lumminate From http://www.sitepoint.com/javascript-generate-lighter-darker-color/
+function ColorLuminance(hex, lum) {
+    // validate hex string
+    hex = String(hex).replace(/[^0-9a-f]/gi, '');
+    if (hex.length < 6) {
+    	hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    }
+    lum = lum || 0;
+    // convert to decimal and change luminosity
+    var rgb = "#", c, i;
+    for (i = 0; i < 3; i++) {
+    	c = parseInt(hex.substr(i*2,2), 16);
+    	c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+    	rgb += ("00"+c).substr(c.length);
+    }
+    return rgb;
+}
+//*********************
+
+function drawText(){
+	c.textAlign = 'center';
+	c.fillStyle = textColor;
+	c.font = font;
+	c.fillText("Hello World",labelXPos,labelYPos);
+}
+
+function drawBackground(){
+	c.fillStyle = backgroundColor;
+	c.fillRect(0,0,canvas.width,canvas.height);
+}
+
+function changeBoardBackground(){
+	backgroundColor = "rgb(" + $("#RSliderBackground").val() + "," + $("#GSliderBackground").val() + "," + $("#BSliderBackground").val() + ")";
+	reDrawCanvas();
+}
+
+function reDrawCanvas(){
+	c.clearRect(0,0,canvas.width,canvas.height);
+	drawBackground();
+	drawText();
+}
+
+
+</script>
+
 </body>
 </html>

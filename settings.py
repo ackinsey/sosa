@@ -13,8 +13,10 @@ MANAGERS = ADMINS
 #http://stackoverflow.com/questions/11170133/using-mysql-with-django-access-denied-for-user-localhost fixed it
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join("/data/sosa/", 'sosa.db'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':'sosa',
+        'USER':'mydb_user',
+        'PASSWORD':'password',
     }
 }
 

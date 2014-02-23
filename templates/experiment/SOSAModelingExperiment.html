@@ -14,20 +14,28 @@
 
 		});
 		$( "#finishTestBtn" ).click(function() {
-
+			onFinish();
 		});
 	});
-	
+
 	</script>
 </head>
 
 <body>
-	<div id="container" style="width:800px; height:800px;border:1px solid #000000;">
+	<div id="container" style="width:1200px; height:100%;border:1px solid #000000;">
 		
-		<div id="leftPanel" style="width:19%; height:100%;float:left;border:1px solid #000000;">
+		<div id="leftPanel" style="width:150px; height:100%;float:left;border:1px solid #000000;">
 			<span><h1 align = "center" >Stimuli</h1></span>
 			
-			<input type = "select" id = "stimuliList" style = " width:95%;height:75%">
+			<table id = "stimuliList" style = " width:95%;height:75%">
+			
+				{% for stimuli in stimuliList %}
+				<tr>
+					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},{{stimuli.label_text}});$(this).remove();">{{stimuli.label_text}}</td>
+				</tr>
+				{% endfor %}
+				
+			</table>
 
 			<input type = "button" id = "revertCamBtn"  style = "width:100%;height:7%;float:left" value = "Revert Camera">
 
@@ -35,9 +43,213 @@
 
 		</div>
 
-		<canvas id = "PreviewCanvas"  style="width:80%;height:100%;float:right;border:1px solid #000000;">
-		</canvas>
+		<canvas id ="canvas" width='{{experiment.window_x}}' height='{{experiment.window_y}}'></canvas>
 	</div>
 </body>
 
 </html>
+
+<script type="text/javascript">
+var pegs = [];//array of all pegs in the experiment
+var pegMoves = [];//array that holds the info for each peg movement
+
+
+var canvas = $('canvas').get(0).getContext("2d");
+var mouseDown = false;
+//html5 canvas jank
+var FPS = 30;
+setInterval(function() {
+  update();
+  draw();
+}, 1000/FPS);
+
+function update() {
+	canvas.fillStyle = "white";
+	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
+ }
+function draw() { 
+	for(var i = 0; i < pegs.length; i++){
+		canvas.fillStyle = "#000";
+		canvas.fillRect(pegs[i].position.x - 25, pegs[i].position.y - 25, 50, 50);
+	}
+}
+
+$('canvas')[0].addEventListener("mousedown", function(evt) {
+	mouseDown = true;
+
+      }, false);
+
+$('canvas')[0].addEventListener("mouseup", function(evt) {
+	mouseDown = false;
+	if(pegMoved)
+		onPegMoved();
+
+	pegMoved = false;
+    }, false);
+
+$('canvas')[0].addEventListener("mousemove", function(evt) {
+        var mousePos = getMousePos(canvas, evt);
+
+        if(mouseDown){
+        for(var i = 0; i < pegs.length; i++){
+			if(mousePos.x <= pegs[i].position.x + 25 && mousePos.x >= pegs[i].position.x - 25){//nested for readability
+				if(mousePos.y <= pegs[i].position.y + 25 && mousePos.y >= pegs[i].position.y - 25){
+					index = i;
+					pegs[i].position.x = mousePos.x;
+					pegs[i].position.y = mousePos.y;
+					pegMoved = true;
+				}
+			}
+		}
+	}
+      }, false);
+
+
+var startTime;//experiment start date
+var DefaultPegX = 10, DefaultPegY = 10;//default loacation of pegs
+var numPegs;//number of pegs in the experiment
+var prevPosition;
+var index;
+var pegMoved;
+
+
+/*******Objects*////////
+/*Position*/
+function position(x,y){
+this.x = x;
+this.y = y;
+}
+//**Peg object
+function peg(ID, position){
+this.ID = ID;
+this.position = position;
+this.label = "Unlabled";
+}
+
+function peg(ID, position, label){
+this.ID = ID;
+this.position = position;
+this.label = label;
+
+}
+//**PegMove object
+function pegMove(ID, timeMoved, currentPosition, previousPosition){
+this.ID = ID;
+this.timeMoved = timeMoved;
+this.currentPosition = currentPosition;
+this.previousPosition = previousPosition;
+}
+/***************************/
+
+
+/***functions To call*/
+
+function addPeg(id, label){
+	pegs.push(new peg(id, new position(10 + ((pegs.length % 3) * 100) , 10 + (Math.floor(pegs.length / 3) * 100), label)));
+}
+//**Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))***//
+function onPegMoved(){
+	//passing in currentTime, index,
+	pegMoves.push(new pegMove(index, formatDate(new Date()), pegs[index].position, prevPosition));
+
+}
+//**Call once when the experiment starts(number of pegs in the experiment)**//
+function onStart(){
+
+startTime = new Date();
+
+}
+//*****call once when the experiment is finished returns a js object with alot of data
+function onFinish(){
+var endTime = new Date();
+
+var finalData = new Object();
+finalData.startTime = formatDate(startTime);
+finalData.endTime = formatDate(endTime);
+finalData.pegMoves = pegMoves;
+finalData.distances = findDistances();
+finalData.finalPositions = getFinalPositions(numPegs);
+
+	$.ajax({
+		url:"/finish/",
+		type : "POST",
+		dataType: "json",
+		data : {
+			finalData: JSON.stringify(finalData),
+			csrfmiddlewaretoken: '{{ csrf_token }}',
+		},
+		success : function(data) {
+			alert('sent');
+		}
+	});
+
+}
+/***************************************/
+
+function findDistances(){
+
+/*two dimentional distances array*/
+var distances = new Array(numPegs);
+for( var i = 0; i<distances.length; i++)
+distances[i] = new Array(numPegs);
+/**********/
+
+for(var i = 0; i<pegs.length; i++){
+for(var j = 0; j <pegs.length; j++){
+if(pegs[j].ID != i){
+distances[i][j] = (Math.sqrt(Math.pow((pegs[j].position.x - pegs[i].position.x),2) + Math.pow((pegs[j].position.y - pegs[i].position.y),2)));
+}
+else{
+distances[i][j] = ("N/A");
+}
+console.log(i.toString() + " " + j.toString()  + " " + distances[i][j] + " ");
+}
+}
+
+return distances;
+}
+
+
+function getFinalPositions(numPegs){
+var lastPos;
+var finalPositions = new Array(numPegs);
+for(var i = 0; i <finalPositions.length; i++){
+lastPos = new position(DefaultPegX,DefaultPegY);
+for(var j = 0; j <pegMoves.length; j++){
+if(pegMoves[i].ID == i)
+lastPos = new position(pegMoves[i].currentPosition);
+}
+finalPositions[i] = lastPos;
+}
+
+return finalPositions;
+
+}
+
+
+function formatDate(d){
+var hours = d.getHours();
+var ampm = hours >= 12 ? "pm" : "am";
+
+hours = (hours >= 12)?(hours-12):hours;
+if(hours == 0)
+hours = 12;
+
+hours = hours.toString();
+var minutes = d.getMinutes().toString();
+var seconds = d.getSeconds() > 9 ? d.getSeconds().toString() : "0" + d.getSeconds().toString();;
+var formatedDate = hours.concat(":",minutes,":",seconds," ",ampm);
+return formatedDate;
+
+}
+
+function getMousePos(canvas, evt) {
+var rect = $('canvas').get(0).getBoundingClientRect();
+return {
+  x: evt.clientX - rect.left,
+  y: evt.clientY - rect.top
+};
+}
+
+onStart();
+</script>
