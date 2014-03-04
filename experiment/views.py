@@ -107,14 +107,17 @@ def load(request):
 def run(request):
 	experiment=Experiment.objects.all()[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
+
+	for s in stimuli:
+		print s.label_text
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"stimuliList":stimuli,
 		"experiment":experiment,
 })
 
 def finish(request):
-	for key, value in request.POST.iteritems():
-		print key, value
+	print json.loads(request.POST['finalData'])
+
 
 	return render(request, 'experiment/index.html', {
 	})
