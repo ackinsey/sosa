@@ -31,7 +31,7 @@
 			
 				{% for stimuli in stimuliList %}
 				<tr>
-					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}', {{stimuli.peg_color.red}}, {{stimuli.peg_color.green}}, {{stimuli.peg_color.blue}}, {{stimuli.label_color.red}}, {{stimuli.label_color.green}}, {{stimuli.label_color.blue}});$(this).remove();">{{stimuli.label_text}}</td>
+					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}', '{{stimuli.peg_size}}', {{stimuli.peg_color.red}}, {{stimuli.peg_color.green}}, {{stimuli.peg_color.blue}}, {{stimuli.label_color.red}}, {{stimuli.label_color.green}}, {{stimuli.label_color.blue}});$(this).remove();">{{stimuli.label_text}}</td>
 				</tr>
 				{% endfor %}
 				
@@ -64,14 +64,24 @@ setInterval(function() {
 }, 1000/FPS);
 
 function update() {
-	canvas.fillStyle = "white";
-	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
+	if(imageObj.src != ""){
+		canvas.drawImage(imageObj, 0, 0, {{experiment.window_x}}, {{experiment.window_y}});
+	}
+	else{
+		canvas.fillStyle = "white";
+		canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
+	}
  }
 function draw() { 
 	for(var i = 0; i < pegs.length; i++){
 		canvas.fillStyle = pegs[i].peg_color;
 		canvas.font="20px Georgia";
-		canvas.fillRect(pegs[i].position.x - 25, pegs[i].position.y - 25, 50, 50);
+		if(pegs[i].image_src!=""){
+			canvas.drawImage(imageObj, pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
+		}
+		else{
+			canvas.fillRect(pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
+		}
 		canvas.fillStyle = pegs[i].label_color;
 		canvas.fillText(pegs[i].label, pegs[i].position.x - 50, pegs[i].position.y - 50);
 	}
@@ -114,6 +124,9 @@ var numPegs;//number of pegs in the experiment
 var prevPosition;
 var index;
 var pegMoved;
+var imageObj = new Image();
+//todo
+imageObj.src = 'http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg';
 
 
 /*******Objects*////////
@@ -127,8 +140,11 @@ function peg(){
 	this.ID = arguments[0];
 	this.position = new position(10 + ((pegs.length % 3) * 100) , 10 + (Math.floor(pegs.length / 3) * 100));
 	this.label = arguments[1];
-	this.peg_color = "#" + arguments[2];
-	this.label_color = "#" + arguments[3];
+	this.size = (arguments[2] == "")? arguments[2].parseInt() : 50;
+	this.peg_color = "#" + arguments[3];
+	this.label_color = "#" + arguments[4];
+	//todo
+	this.image_src = "";
 }
 
 //**PegMove object
@@ -143,11 +159,11 @@ this.previousPosition = previousPosition;
 
 /***functions To call*/
 
-function addPeg(id, label, peg_red, peg_green, peg_blue, label_red, label_green, label_blue){
+function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue){
 	var peg_color = peg_red.toString(16) + peg_green.toString(16) + peg_blue.toString(16);
 	var label_color = label_red.toString(16) + label_green.toString(16) + label_blue.toString(16);
 
-	pegs.push(new peg(id, label, peg_color, label_color));
+	pegs.push(new peg(id, label, size, peg_color, label_color));
 }
 //**Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))***//
 function onPegMoved(){
