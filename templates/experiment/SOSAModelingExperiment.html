@@ -31,7 +31,7 @@
 			
 				{% for stimuli in stimuliList %}
 				<tr>
-					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}');$(this).remove();">{{stimuli.label_text}}</td>
+					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}');$(this).remove();alert({{stimuli.peg_color.red}});">{{stimuli.label_text}}</td>
 				</tr>
 				{% endfor %}
 				
