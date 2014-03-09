@@ -58,10 +58,10 @@ class OrderItem(models.Model):
 class Results(models.Model):
 	#needs work
 	date=models.DateTimeField(default=time.strftime("%d/%m/%Y"))
-	stimuli_order=models.ForeignKey(Order, related_name="order")
+	#stimuli_order=models.ForeignKey(Order, related_name="order")
 	preview_start_time=models.DateTimeField()
 	experiment_start_time=models.DateTimeField()
-	actions=models.CharField()
-	final_positions=models.CharField()
-	distances=models.CharField()
-	background_image_location=models.CharField()
+	actions=models.CharField(max_length=200)
+	final_positions=models.CharField(max_length=200)
+	distances=models.CharField(max_length=200)
+	background_image_location=models.CharField(max_length=200)
