@@ -107,11 +107,11 @@ def load(request):
 def run(request):
 	experiment=Experiment.objects.all()[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
-	print experiment.board_image
+
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"stimuliList":stimuli,
 		"experiment":experiment,
-		"board_image":experiment.board_image,
+
 })
 
 def finish(request):

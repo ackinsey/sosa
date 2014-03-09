@@ -1,4 +1,5 @@
 from django.db import models
+import time
 
 class Color(models.Model):
 	red=models.IntegerField()
@@ -54,3 +55,13 @@ class OrderItem(models.Model):
 	order=models.ForeignKey(Order, related_name="order")
 	stimulus=models.ForeignKey(Stimulus,related_name="stimulus")
 
+class Results(models.Model):
+	#needs work
+	date=models.DateTimeField(default=time.strftime("%d/%m/%Y"))
+	stimuli_order=models.ForeignKey(Order, related_name="order")
+	preview_start_time=models.DateTimeField()
+	experiment_start_time=models.DateTimeField()
+	actions=models.CharField()
+	final_positions=models.CharField()
+	distances=models.CharField()
+	background_image_location=models.CharField()
