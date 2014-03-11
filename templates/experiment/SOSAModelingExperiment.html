@@ -232,7 +232,7 @@ var lastPos;
 var finalPositions = new Array(pegs.length);
 for(var i = 0; i <finalPositions.length; i++){
 	lastPos = new position(DefaultPegX,DefaultPegY);
-		for(var j = 0; j <pegMoves.length; j++){
+		for(var j = 0; j < pegMoves.length - 1; j++){
 			if(pegMoves[i].ID == i)
 				lastPos = new position(pegMoves[i].currentPosition);
 		}

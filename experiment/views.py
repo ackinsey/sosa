@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponseRedirect
-from experiment.models import Stimulus, Color, Experiment, Order, OrderItem
+from experiment.models import Stimulus, Color, Experiment, Order, OrderItem, Results
 from json import dumps, loads, JSONEncoder
 from django.core.serializers import serialize
 from django.utils.functional import Promise
@@ -116,8 +116,10 @@ def run(request):
 
 def finish(request):
 	
-	print json.loads(request.POST['finalData'])
+	dict = eval(request.POST['finalData'])
 
+	results = Results(experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'])
+	results.save()
 
 	return render(request, 'experiment/index.html', {
 	})

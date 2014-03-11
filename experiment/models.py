@@ -1,5 +1,5 @@
 from django.db import models
-import time
+import datetime
 
 class Color(models.Model):
 	red=models.IntegerField()
@@ -57,10 +57,11 @@ class OrderItem(models.Model):
 
 class Results(models.Model):
 	#needs work
-	date=models.DateTimeField(default=time.strftime("%d/%m/%Y"))
+	date=models.DateTimeField(default=datetime.datetime.now())
 	#stimuli_order=models.ForeignKey(Order, related_name="order")
-	preview_start_time=models.DateTimeField()
-	experiment_start_time=models.DateTimeField()
+	#preview_start_time=models.DateTimeField()
+	experiment_start_time=models.CharField(max_length=50)
+	experiment_end_time=models.CharField(max_length=50)
 	actions=models.CharField(max_length=200)
 	final_positions=models.CharField(max_length=200)
 	distances=models.CharField(max_length=200)
