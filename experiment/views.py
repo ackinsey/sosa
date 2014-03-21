@@ -1,5 +1,5 @@
-from django.shortcuts import render, HttpResponseRedirect
-from experiment.models import Stimulus, Color, Experiment, Order, OrderItem, Results
+from django.shortcuts import render,  HttpResponse, HttpResponseRedirect
+from experiment.models import Stimulus, Color, Experiment, Order, OrderItem, Results, Preview
 from json import dumps, loads, JSONEncoder
 from django.core.serializers import serialize
 from django.utils.functional import Promise
@@ -8,10 +8,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
 from settings import MEDIA_URL
 import json
-
+import csv
 
 def home(request):
 	return render(request, 'experiment/index.html', {
+		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
     })
 def create(request):
 	if request.POST:
@@ -93,7 +94,12 @@ def load(request):
 			setattr(p, field.name, request.POST[field.name])
 
 		p.save()
-	experiment=Experiment.objects.all()[0]
+		return render(request, 'experiment/prompt.html', {
+		})
+	if request.GET:
+		experiment=Experiment.objects.get(id=request.GET['experiment_id'])
+	else:		
+		experiment=Experiment.objects.all()[0]
 	orders=Order.objects.filter(experiment=experiment)
 	stim_orders=[]
 	for order in orders:
@@ -111,15 +117,46 @@ def run(request):
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"stimuliList":stimuli,
 		"experiment":experiment,
-
-})
+		"MEDIA_URL":MEDIA_URL,
+	})
 
 def finish(request):
-	
 	dict = eval(request.POST['finalData'])
-
-	results = Results(experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'])
+	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'])
 	results.save()
-
 	return render(request, 'experiment/index.html', {
+		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
+    })
+
+def view_stimuli(request):
+	if request.POST:
+		return run(request)
+	return render(request, 'experiment/stimuli_preview.html', {
+		"experiment":Experiment.objects.get(id=request.GET['experiment_id'])
 	})
+
+def about(request):
+	return render(request, 'experiment/about.html', {})
+
+def view_results(request):
+	results=Results.objects.all()[0]
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="'+'name'+'.csv"'
+	writer = csv.writer(response)
+	writer.writerow(['Experiment:', results.experiment.name])
+	writer.writerow(['Version:', results.experiment.version])
+	writer.writerow(['Subject:'])
+	writer.writerow(['Date:'])
+	writer.writerow([''])
+	writer.writerow(['Stimuli Presentation Order:'])
+	writer.writerow(['ID','Label'])
+	for stimulus in Stimulus.objects.filter(experiment=results.experiment):
+		writer.writerow([stimulus.processingID,stimulus.label_text])
+	writer.writerow([''])
+	writer.writerow(['Background Image Location:'])
+	if results.experiment.board_image:
+		writer.writerow([results.experiment.board_image.url])
+	else:
+		writer.writerow(['No Image'])
+	writer.writerow([''])
+	return response

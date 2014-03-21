@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Prompt</title>	
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+	<script>
+
+	$(document).ready(function(){
+		$( "#viewStimuliBtn" ).click(function() {
+			alert("Time stamp here");
+		});
+	});
+	</script>
+</head>
+<body>
+		<a href="/view_stimuli?experiment_id={{request.GET.experiment_id}}">
+		<input type = "button" id = "viewStimuliBtn"  value = "View Stimuli"></a>
+
+	</body>
+	</html>

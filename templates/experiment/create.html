@@ -1,5 +1,5 @@
-<html>
-	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+{% extends "experiment/base.html" %}
+{% block content %}
 	<!--display media by using the images url <img src="{{img.url}}"></img>-->
 	<form id="creationForm" action="." method="post" enctype="multipart/form-data">
 		{% csrf_token %}  
@@ -146,14 +146,10 @@
 							<td>
 							</td>
 						</tr>
-						<tr class="imageDisplay"  style="display:none;">
+						<tr class="imageDisplay"  style="display:none;">								
 							<td id="imageTable">
 								<input type="file" class="image_uploader"  onchange="updateImage(this);" id="stim_image_0" name="stimulus_image_0">
 								<div id="stim_image_helper"></div>
-							</td>
-							<td>
-							</td>
-							<td>
 							</td>
 						</tr>
 						<tr class="imageDisplay" style="display:none;">
@@ -229,7 +225,7 @@
 
 		$('#peg_settings :input').prop("disabled",true);
 
-		var canvas = $("#create_canvas")[0];
+		var canvas = $("#create_canvas")[0]
 		var c=canvas.getContext("2d");
 		var backgroundColor = "rgb(0,0,0)";
 		var font = "24px Arial";
@@ -266,7 +262,8 @@
 		        var reader = new FileReader();;
 		        reader.onload = function (e) {
 		         image.src = e.target.result;
-		         selected_stimulus.image_data=image.src;
+		         if(selected_stimulus)
+		         	selected_stimulus.image_data=image.src;
 				 reDrawCanvas();
 		        }
 		        reader.readAsDataURL(input.files[0]);
@@ -295,13 +292,16 @@
 					var temp=this.order_items[item_index];
 					this.order_items[item_index]=this.order_items[item_index+1];
 					this.order_items[item_index+1]=temp;
+					return true;
 				}
 				//move up
 				else if(direction==-1&&item_index>0){
 					var temp=this.order_items[item_index];
 					this.order_items[item_index]=this.order_items[item_index-1];
 					this.order_items[item_index-1]=temp;
-				}
+					return true;
+				}else
+					return false;
 			}
 		}
 		function Stimulus(stim_index) {
@@ -320,6 +320,10 @@
 			}
 		}
 		function setPegList(order){
+				if(!order)
+				{
+					return;
+				}
 			    $('#peg_list').find('option')
 			    .remove()
 			    .end();
@@ -375,12 +379,21 @@
 			selected_stimulus.processing_id=$('#stim_processing_id').val();
 		});
 		$('#move_down_btn').on('click',function(){
-			order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),1);
-			setPegList(order_list[current_order_index].order_items);
+			
+			if($('#peg_list').val()){
+				if(order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),1)){
+					setPegList(order_list[current_order_index].order_items);
+
+				}
+			}
+			
 		});
 		$('#move_up_btn').on('click',function(){
-			order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),-1);
-			setPegList(order_list[current_order_index].order_items);
+			if($('#peg_list').val()){
+				if(order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),-1)){
+					setPegList(order_list[current_order_index].order_items);
+				}
+			}
 		});
 		$("#size_type").change(function(event){
 			selected_stimulus.image_scale=$(this).val();
@@ -493,5 +506,5 @@
 		   $("#creationForm").submit();
 		});
 	</script>	
-</html>
+{% endblock %}
 

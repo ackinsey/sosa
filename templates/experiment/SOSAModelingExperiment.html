@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html>
+{% extends "experiment/base.html" %}
+{% block content %}
 <head>
 	<title>
 		SOSA Modeling Experiment
 	</title>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
-	</script>
 
 	<script>
 
@@ -20,22 +18,20 @@
 
 	</script>
 </head>
-
 <body>
-	<div id="container" style="width:1200px; height:100%;border:1px solid #000000;">
+	<div id="container" style="width:1200px; border:1px solid #000000;">
 		
-		<div id="leftPanel" style="width:150px; height:100%;float:left;border:1px solid #000000;">
+		<div id="leftPanel" style="width:150px; float:left;border:1px solid #000000;">
 			<span><h1 align = "center" >Stimuli</h1></span>
 			
-			<table id = "stimuliList" style = " width:95%;height:75%">
+			<select size="20" id = "stimuliList" style = " width:95%">
 			
 				{% for stimuli in stimuliList %}
-				<tr>
-					<td id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}', '{{stimuli.peg_size}}', {{stimuli.peg_color.red}}, {{stimuli.peg_color.green}}, {{stimuli.peg_color.blue}}, {{stimuli.label_color.red}}, {{stimuli.label_color.green}}, {{stimuli.label_color.blue}});$(this).remove();">{{stimuli.label_text}}</td>
-				</tr>
+				<option id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}', '{{stimuli.peg_size}}', {{stimuli.peg_color.red}}, {{stimuli.peg_color.green}}, {{stimuli.peg_color.blue}}, {{stimuli.label_color.red}}, {{stimuli.label_color.green}}, {{stimuli.label_color.blue}},
+					{% if stimuli.image %}'{{stimuli.image.url}}'{% else %}''{% endif %});">{{stimuli.label_text}}</option>
 				{% endfor %}
 				
-			</table>
+			</select>
 
 			<input type = "button" id = "revertCamBtn"  style = "width:100%;height:7%;float:left" value = "Revert Camera">
 
@@ -45,10 +41,6 @@
 
 		<canvas id ="canvas" width='{{experiment.window_x}}' height='{{experiment.window_y}}'></canvas>
 	</div>
-</body>
-
-</html>
-
 <script type="text/javascript">
 var pegs = [];//array of all pegs in the experiment
 var pegMoves = [];//array that holds the info for each peg movement
@@ -64,26 +56,26 @@ setInterval(function() {
 }, 1000/FPS);
 
 function update() {
+	canvas.fillStyle = "black";
+	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
 	if(imageObj.src != ""){
-		canvas.drawImage(imageObj, 0, 0, {{experiment.window_x}}, {{experiment.window_y}});
-	}
-	else{
-		canvas.fillStyle = "white";
-		canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
+		canvas.drawImage(imageObj, 100, 100, {{experiment.window_x}}-200, {{experiment.window_y}}-200);
 	}
  }
 function draw() { 
 	for(var i = 0; i < pegs.length; i++){
 		canvas.fillStyle = pegs[i].peg_color;
 		canvas.font="20px Georgia";
-		if(pegs[i].image_src!=""){
-			canvas.drawImage(imageObj, pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
+		if(pegs[i].image){
+			canvas.drawImage(pegs[i].image, pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
 		}
 		else{
-			canvas.fillRect(pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
+			canvas.drawImage(peg_image, pegs[i].position.x - ( peg_image.width/4), pegs[i].position.y - ( peg_image.height/4), peg_image.width/2, peg_image.height/2);
 		}
 		canvas.fillStyle = pegs[i].label_color;
-		canvas.fillText(pegs[i].label, pegs[i].position.x - 50, pegs[i].position.y - 50);
+		
+		var x=(canvas.measureText(pegs[i].label).width/2);
+		canvas.fillText(pegs[i].label, pegs[i].position.x - x, pegs[i].position.y - 50);
 	}
 }
 
@@ -111,6 +103,7 @@ $('canvas')[0].addEventListener("mousemove", function(evt) {
 					pegs[i].position.x = mousePos.x;
 					pegs[i].position.y = mousePos.y;
 					pegMoved = true;
+					break;
 				}
 			}
 		}
@@ -125,8 +118,9 @@ var prevPosition;
 var index;
 var pegMoved;
 var imageObj = new Image();
-//todo
-imageObj.src = 'http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg';
+imageObj.src = {% if experiment.board_image %}'{{experiment.board_image.url}}'{% else %}''{% endif %};
+var peg_image = new Image();
+peg_image.src="{{MEDIA_URL}}/peg.png";
 
 
 /*******Objects*////////
@@ -138,13 +132,13 @@ this.y = y;
 //**Peg object
 function peg(){
 	this.ID = arguments[0];
-	this.position = new position(10 + ((pegs.length % 3) * 100) , 10 + (Math.floor(pegs.length / 3) * 100));
+	this.position = new position(50,50);
 	this.label = arguments[1];
 	this.size = (arguments[2] == "")? arguments[2].parseInt() : 50;
 	this.peg_color = "#" + arguments[3];
 	this.label_color = "#" + arguments[4];
 	//todo
-	this.image_src = "";
+	this.image=arguments[5];
 }
 
 //**PegMove object
@@ -159,11 +153,23 @@ this.previousPosition = previousPosition;
 
 /***functions To call*/
 
-function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue){
+function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue,image){
+	/*prevent multiple instances of the same peg from being instantiated*/
+	for(var i=0;i<pegs.length;i++){
+		if(pegs[i].ID==id)
+			return;
+	}
 	var peg_color = peg_red.toString(16) + peg_green.toString(16) + peg_blue.toString(16);
 	var label_color = label_red.toString(16) + label_green.toString(16) + label_blue.toString(16);
-
-	pegs.push(new peg(id, label, size, peg_color, label_color));
+	console.log(label_color);
+	if(image.length>0){
+		var img=new Image();
+		img.src=image;
+		pegs.push(new peg(id, label, size, peg_color, label_color,img));
+	}
+	else{
+		pegs.push(new peg(id, label, size, peg_color, label_color,null));
+	}
 }
 //**Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))***//
 function onPegMoved(){
@@ -182,6 +188,7 @@ function onFinish(){
 var endTime = new Date();
 
 var finalData = new Object();
+finalData.experiment_id='{{experiment.id}}';
 finalData.startTime = formatDate(startTime);
 finalData.endTime = formatDate(endTime);
 finalData.pegMoves = pegMoves;
@@ -270,3 +277,4 @@ return {
 
 onStart();
 </script>
+{% endblock %}

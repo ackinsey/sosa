@@ -1,36 +1,63 @@
-<html>
-	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-	<fieldset>
-	<div id="container">
+{% extends "experiment/base.html" %}
+{% block content %}
+	<title>
+		SOSA Home Page
+	</title>
+	<div id="container" style="width:600px;margin:20px;">
 		<div>
-			Welcome to the SOSA data modeling software
-		</div>
-		<div>
-			You may now choose your mode, click the appropriate button for the mode you desire. 
+			<p>Welcome to the SOSA data modeling software!</p>
+			<p>To learn more about SOSA click <a href="/about">here</a></p>
+			<p>You may now choose your mode, click the appropriate button for the mode you desire.</p> 
 		</div>
 		<table>
 			<tr>
 				<td>Click here to run experiment</td>
 				<td><input id="run_experiment_btn" type="button" value="Run Experiment"/></td>
-				<td><input id="load_stimulus_btn" type="button" value="Load Stimulus Set"/></td>
+				<td><select id="experiment_container" style="height:100%; width:200%;" multiple="multiple"/></td>
 			</tr>
 			<tr>
 				<td>Click here to create a stimulus set</td>
-				<td><input id="create_stimulus_btn" type="button" value="Create Stimulus Set"/></td>
-				<td><select style="height:100%; width:100%;" multiple="multiple"/></td>
+				<td><input id="create_stimulus_btn" type="button" value="Create Experiment"/></td>
+				<td><select id="stimulus_container" style="height:100%; width:200%;" multiple="multiple"/></td>
 			</tr>
 		</table>
-	<div>
-	</fieldset>
+	</div>
 		<script>
-			$('#run_experiment_btn').on('click',function(){
-				window.location="/run/";	
+			var experiments=new Array();
+
+			function experiment(name,id){
+				this.name=name;
+				this.id=id;
+				this.stimulus=new Array();
+			};
+
+			(function(){
+				{% for stim in stimulus %}
+					if(!experiments["{{stim.experiment}}"])
+						experiments["{{stim.experiment}}"]=new experiment("{{stim.experiment__name}}","{{stim.experiment}}");
+					experiments["{{stim.experiment}}"].stimulus.push("{{stim.label_text}}");
+				{% endfor %}
+				experiments.forEach(function(experiment){
+					$('#experiment_container').append("<option value="+experiment.id+">"+experiment.name+"</option>");
+				});
+			})();
+
+			$('#experiment_container').change(function(){
+				$('#stimulus_container').text("");
+				experiments[$('#experiment_container option:selected').val()]
+				.stimulus
+				.forEach(function(stim){
+					$('#stimulus_container').append("<option>"+stim+"</option>");
+				});
 			});
 			$('#create_stimulus_btn').on('click',function(){
 				window.location="/create/";				
 			});
-			$('#load_stimulus_btn').on('click',function(){
-				window.location="/load/";			
+			$('#run_experiment_btn').on('click',function(){
+				if($('#experiment_container option:selected').val())
+					window.location="/load/?experiment_id="+$('#experiment_container option:selected').val();
+				else
+					alert("You must select an experiment before you can start!");		
 			});
 		</script>
-</html>
+{% endblock %}

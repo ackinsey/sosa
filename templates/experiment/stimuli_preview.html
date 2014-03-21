@@ -1,0 +1,40 @@
+{% extends "experiment/base.html" %}
+{% block content %}
+<head>
+	<title>Experiment Preview</title>	
+
+
+	<script>
+
+	$(document).ready(function(){
+		$( "#viewAllStimuliBtn" ).click(function() {
+			
+		});
+		$( "#beginExperimentBtn" ).click(function() {
+				$( "#viewStimuliForm" ).submit();
+		});
+	});
+	
+	</script>
+
+</head>
+
+	<div id="container" style="width:800px; height:800px;border:1px solid #000000;">
+
+		<canvas id = "PreviewCanvas"  style="width:100%;height:95%;border:1px solid #000000;"></canvas>
+
+		<form id = "viewStimuliForm" method = "post">
+				{% csrf_token %} 
+				<div id = "viewStim" style="width:50%;float:left;">
+					<a href = "/viewStimuli.html">
+						<input type = "button" id = "viewAllStimuliBtn"  value = "View All Stimuli">
+					</a>
+				</div>
+				<div style="width:50%;float:right">
+					<span>Enter ID:</span>
+					<input type = "text" name = "subjectID" id = "subjectID" >
+					<input type = "button" id = "beginExperimentBtn" value = "Begin Experiment">
+				</div>
+		</form>
+	</div>
+{% endblock %}
