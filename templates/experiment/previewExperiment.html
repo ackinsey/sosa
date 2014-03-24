@@ -381,7 +381,7 @@ var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider 
 //Default Values
 var labelYPos = 100, labelXPos = 100;
 var textColor = "#69C"
-var font = ($("#sizeSLiderLabel").val()/4+1) + "px Arial";
+var font = ($("#size").val()/4+3) + "px Arial";
 
 var backgroundColor = "rgb(" + $("#RSliderBackground").val() + "," + $("#GSliderBackground").val() + "," + $("#BSliderBackground").val() + ")";
 
@@ -430,6 +430,14 @@ $("#sizeSLiderLabel").change(function(){
 
 $("#positionSLiderLabel").change(function(){
 	changePosition($("#positionSLiderLabel").val());
+});
+
+$('#position').change(function(){
+	reDrawCanvas();
+});
+$('#size').change(function(){
+	 font=($("#size").val()/4+3) + "px Arial";
+	 reDrawCanvas();
 });
 //************************
 
@@ -511,10 +519,11 @@ function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 	this.label_color=label_color;
 	this.peg_color=peg_color;
 }
-
 /*Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
 It also sets the board image if a board image exists.*/
 (function(){
+	var peg_image=new Image();
+	peg_image.src="http://127.0.0.1/peg.png";
 	{% if experiment.board_image %}
 		board_image=new Image();
 		board_image.src="{{experiment.board_image.url}}";
@@ -525,18 +534,19 @@ It also sets the board image if a board image exists.*/
 	
 	{% for order in orders %}
 	stim_orders[stim_orders.length]=new Array();
+	var image;
 	{% for order_item in order %}
 		var label="{{order_item.stimulus.label_text}}";
 		var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
 		var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
 		var image_scale="{{order_item.stimulus.image_scale}}";
 		var is_image="{{order_item.stimulus.is_peg}}";
-		var image;
+		
 			{% if order_item.stimulus.image %}
 				image=new Image();
 				image.src="{{order_item.stimulus.image.url}}";
 			{% else %}
-				image=null;
+				image=peg_image;
 			{% endif %}
 			stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
 		{% endfor %}
@@ -547,17 +557,19 @@ It also sets the board image if a board image exists.*/
 	for(var i=0;i<current_order.length;i++){
 		$('#stimuliSelect').append("<option>"+current_order[i].stim_label+"</option>");
 	}
-	reDrawCanvas();
-	redrawStim();
+	image.onload=function(){
+		reDrawCanvas();
+		redrawStim();
+	}
 })();
 function redrawStim(){
 	for(var i=0;i<current_order.length;i++)
 		drawStim(current_order[i],Math.floor(i%4),Math.floor(i/4));
 }
 function drawStim(stim,x,y){
-	//if(stim.stim_image)
+	var position=$('#position').val();
 	drawImageX(stim.stim_image, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/6));
-	drawTextX(stim.stim_label, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/16),stim.label_color);
+	drawTextX(stim.stim_label, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
 }
 function drawTextX(text, xPos, yPos, label_color){
 	
@@ -567,8 +579,13 @@ function drawTextX(text, xPos, yPos, label_color){
 	c.fillText(text,xPos,yPos);
 }
 function drawImageX(image,xPos, yPos){
-	if(image)
-		c.drawImage(image,xPos-30,yPos-30,60,60);
+	if(image){
+		if(image.src=="http://127.0.0.1/peg.png")
+			c.drawImage(image,xPos-(image.width/4),yPos-(image.height/4),image.width/2,image.height/2);
+		else
+			c.drawImage(image,xPos-30,yPos-30,60,60);
+	}
+		
 }
 </script>
 
