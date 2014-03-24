@@ -203,8 +203,8 @@ finalData.finalPositions = getFinalPositions();
 			finalData: JSON.stringify(finalData),
 			csrfmiddlewaretoken: '{{ csrf_token }}',
 		},
-		success : function(data) {
-			alert('sent');
+		complete : function(data) {
+			window.location.replace("/");
 		}
 	});
 
