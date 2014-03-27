@@ -51,7 +51,7 @@ USE_TZ = True
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = '/data/media/'
 
-MEDIA_URL = 'http://127.0.0.1/'
+MEDIA_URL = 'http://localhost:80/sosa/'
 
 STATIC_ROOT = ''
 
@@ -59,10 +59,7 @@ STATIC_URL = '/media/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    '/data/media/',
+    '/data/media/sosa/',
 )
 
 # List of finder classes that know how to find static files in
@@ -75,6 +72,12 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'a2u!jh6!)0)zk@3@!u$^n(qnh305rtpy#*8_y)2xo#lr9s)i32'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+)
+
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

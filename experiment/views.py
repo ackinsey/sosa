@@ -7,8 +7,7 @@ from django.utils.encoding import force_text
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
 from settings import MEDIA_URL
-import json
-import csv
+import json, datetime, csv
 
 def home(request):
 	return render(request, 'experiment/index.html', {
@@ -110,29 +109,37 @@ def load(request):
 	    })
 
 
-def run(request):
+def run(request,  startTime, subjectID=None):
 	experiment=Experiment.objects.all()[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
-
+	print startTime
+	print 'xx'
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"stimuliList":stimuli,
 		"experiment":experiment,
 		"MEDIA_URL":MEDIA_URL,
+		"subjectID":subjectID,
+		'startTime':startTime
 	})
 
 def finish(request):
 	dict = eval(request.POST['finalData'])
-	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'])
+	#todo change start Time to prevStartTime
+	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['startTime'],experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'], subject_id=dict['subjectID'])
+
 	results.save()
 	return render(request, 'experiment/index.html', {
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
     })
 
 def view_stimuli(request):
+	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
 	if request.POST:
-		return run(request)
+		print request.POST['prevstartTime']
+
+		return run(request, request.POST['prevstartTime'], request.POST['subjectID'])
 	return render(request, 'experiment/stimuli_preview.html', {
-		"experiment":Experiment.objects.get(id=request.GET['experiment_id'])
+		"experiment":experiment,
 	})
 
 def about(request):
@@ -141,18 +148,44 @@ def about(request):
 def view_results(request):
 	results=Results.objects.all()[0]
 	response = HttpResponse(content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="'+'name'+'.csv"'
+	response['Content-Disposition'] = 'attachment; filename="'+results.experiment.name+'.csv"'
 	writer = csv.writer(response)
 	writer.writerow(['Experiment:', results.experiment.name])
 	writer.writerow(['Version:', results.experiment.version])
-	writer.writerow(['Subject:'])
-	writer.writerow(['Date:'])
+	writer.writerow(['Subject:', results.subject_id])
+	writer.writerow(['Date:', datetime.date.today().strftime("%Y/%m/%d")])
 	writer.writerow([''])
 	writer.writerow(['Stimuli Presentation Order:'])
 	writer.writerow(['ID','Label'])
 	for stimulus in Stimulus.objects.filter(experiment=results.experiment):
 		writer.writerow([stimulus.processingID,stimulus.label_text])
 	writer.writerow([''])
+	writer.writerow(['Subject Initial Preview:', results.preview_start_time])#js error stopping this todo
+	writer.writerow(['Subject Experiment Start:', results.experiment_start_time])
+	writer.writerow([''])
+
+	writer.writerow(['Subject Actions:'])
+	writer.writerow(['Time', 'ID', 'Label', 'From', 'To'])
+	dict = eval(results.actions)
+	#this is using mouse positions instead of peg position, will fix later todo
+	for action in dict:
+		writer.writerow([action['timeMoved'], action['ID'], action['label'], action['previousPosition'], action['currentPosition']])
+
+	writer.writerow([''])
+
+	writer.writerow(['Final Positions:'])
+	writer.writerow(['ID', 'Label', 'Position'])
+	dict = eval(results.final_positions)
+	for fp in dict:
+		writer.writerow([fp['id'], fp['label'], fp['pos']])
+	writer.writerow([''])
+
+	#todo 
+	writer.writerow(['Distances'])
+	writer.writerow(['Label'])#all labels
+	writer.writerow([])#label, x, y
+	writer.writerow([''])
+
 	writer.writerow(['Background Image Location:'])
 	if results.experiment.board_image:
 		writer.writerow([results.experiment.board_image.url])

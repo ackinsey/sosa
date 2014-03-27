@@ -81,6 +81,15 @@ function draw() {
 
 $('canvas')[0].addEventListener("mousedown", function(evt) {
 	mouseDown = true;
+	 var mousePos = getMousePos(canvas, evt);
+	for(var i = 0; i < pegs.length; i++){
+		if(mousePos.x <= pegs[i].position.x + 25 && mousePos.x >= pegs[i].position.x - 25){//nested for readability
+			if(mousePos.y <= pegs[i].position.y + 25 && mousePos.y >= pegs[i].position.y - 25){
+				pegs[i].prevPosition.x = mousePos.x;
+				pegs[i].prevPosition.y = mousePos.y;
+			}
+		}
+	}
 
       }, false);
 
@@ -132,6 +141,7 @@ this.y = y;
 //**Peg object
 function peg(){
 	this.ID = arguments[0];
+	this.prevPosition = new position(0,0);
 	this.position = new position(50,50);
 	this.label = arguments[1];
 	this.size = (arguments[2] == "")? arguments[2].parseInt() : 50;
@@ -142,11 +152,12 @@ function peg(){
 }
 
 //**PegMove object
-function pegMove(ID, timeMoved, currentPosition, previousPosition){
+function pegMove(ID, label, timeMoved, currentPosition, prevPosition){
 this.ID = ID;
+this.label = label;
 this.timeMoved = timeMoved;
 this.currentPosition = currentPosition;
-this.previousPosition = previousPosition;
+this.previousPosition = prevPosition;
 }
 /***************************/
 
@@ -174,7 +185,7 @@ function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_
 //**Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))***//
 function onPegMoved(){
 	//passing in currentTime, index,
-	pegMoves.push(new pegMove(index, formatDate(new Date()), pegs[index].position, prevPosition));
+	pegMoves.push(new pegMove(index, pegs[index].label, formatDate(new Date()), pegs[index].position, pegs[index].prevPosition));
 
 }
 //**Call once when the experiment starts(number of pegs in the experiment)**//
@@ -194,6 +205,8 @@ finalData.endTime = formatDate(endTime);
 finalData.pegMoves = pegMoves;
 finalData.distances = findDistances();
 finalData.finalPositions = getFinalPositions();
+finalData.subjectID = '{{subjectID}}';
+finalData.prevStartTime = '{{startTime}}';
 
 	$.ajax({
 		url:"/finish/",
@@ -233,20 +246,29 @@ for(var i = 0; i<pegs.length; i++){
 return distances;
 }
 
+function finalpos(id, label, pos){
+	this.id = id
+	this.label = label;
+	this.pos = pos;
+}
 
 function getFinalPositions(){
 var lastPos;
 var finalPositions = new Array(pegs.length);
+var fp = [];
 for(var i = 0; i <finalPositions.length; i++){
 	lastPos = new position(DefaultPegX,DefaultPegY);
 		for(var j = 0; j < pegMoves.length - 1; j++){
-			if(pegMoves[i].ID == i)
+			if(pegMoves[i].ID == i){
 				lastPos = new position(pegMoves[i].currentPosition);
+				id = pegMoves[i].ID;
+				label = pegMoves[i].label;
+			}
 		}
-	finalPositions[i] = lastPos;
+	fp.push(new finalpos(id, label, lastPos));
 }
 
-return finalPositions;
+return fp;
 
 }
 

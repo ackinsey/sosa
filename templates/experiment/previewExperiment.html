@@ -523,7 +523,7 @@ function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 It also sets the board image if a board image exists.*/
 (function(){
 	var peg_image=new Image();
-	peg_image.src="http://127.0.0.1/peg.png";
+	peg_image.src="http://localhost:80/sosa/peg.png";
 	{% if experiment.board_image %}
 		board_image=new Image();
 		board_image.src="{{experiment.board_image.url}}";

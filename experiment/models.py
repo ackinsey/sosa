@@ -60,13 +60,13 @@ class Results(models.Model):
 	date=models.DateTimeField(default=datetime.datetime.now())
 	experiment=models.ForeignKey(Experiment, related_name="experiment_results")
 	#stimuli_order=models.ForeignKey(Order, related_name="order")
-	#preview_start_time=models.DateTimeField()
+	preview_start_time=models.CharField(max_length=50)
 	experiment_start_time=models.CharField(max_length=50)
 	experiment_end_time=models.CharField(max_length=50)
 	actions=models.TextField(max_length=200)
 	final_positions=models.TextField(max_length=200)
 	distances=models.TextField(max_length=200)
 	background_image_location=models.CharField(max_length=200)
-
+	subject_id=models.CharField(null=True, max_length=50)
 	def __unicode__(self):
-		return u'%d' % (7)
+		return "subject: %s, experiment: %s"% (self.subject_id, self.experiment)
