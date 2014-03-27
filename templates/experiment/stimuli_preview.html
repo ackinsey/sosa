@@ -4,16 +4,21 @@
 	<title>Experiment Preview</title>	
 
 
-	<script>
-
+	<script type="text/javascript">
 	$(document).ready(function(){
+		var now = new Date();
+		var startTime = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
+
 		$( "#viewAllStimuliBtn" ).click(function() {
 			
 		});
 		$( "#beginExperimentBtn" ).click(function() {
-				$( "#viewStimuliForm" ).submit();
+			$("#prevstartTime").value=startTime;
+			alert($("#prevstartTime").value);
+			$( "#viewStimuliForm" ).submit();
 		});
 	});
+	
 	
 	</script>
 
@@ -26,15 +31,18 @@
 		<form id = "viewStimuliForm" method = "post">
 				{% csrf_token %} 
 				<div id = "viewStim" style="width:50%;float:left;">
+				<!-- todo -->
 					<a href = "/viewStimuli.html">
 						<input type = "button" id = "viewAllStimuliBtn"  value = "View All Stimuli">
 					</a>
 				</div>
 				<div style="width:50%;float:right">
 					<span>Enter ID:</span>
+					<input type = "hidden" name = "prevstartTime" id = "prevstartTime" value="x">
 					<input type = "text" name = "subjectID" id = "subjectID" >
-					<input type = "button" id = "beginExperimentBtn" value = "Begin Experiment">
+					<input type = "button" id = "beginExperimentBtn" value = "Begin Experiment" >
 				</div>
 		</form>
+		<script >alert($("#prevstartTime").value);</script>
 	</div>
 {% endblock %}
