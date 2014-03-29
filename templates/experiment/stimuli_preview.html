@@ -13,8 +13,7 @@
 			
 		});
 		$( "#beginExperimentBtn" ).click(function() {
-			$("#prevstartTime").value=startTime;
-			alert($("#prevstartTime").value);
+			$("#prevstartTime").val(startTime);
 			$( "#viewStimuliForm" ).submit();
 		});
 	});
@@ -43,6 +42,5 @@
 					<input type = "button" id = "beginExperimentBtn" value = "Begin Experiment" >
 				</div>
 		</form>
-		<script >alert($("#prevstartTime").value);</script>
 	</div>
 {% endblock %}

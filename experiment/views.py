@@ -124,7 +124,7 @@ def run(request,  startTime, subjectID=None):
 
 def finish(request):     
 	dict = eval(request.POST['finalData'])
-	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['startTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
+	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['prevStartTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
 	results.save()
 	return render(request, 'experiment/index.html', {
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
