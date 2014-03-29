@@ -68,5 +68,6 @@ class Results(models.Model):
 	distances=models.TextField(max_length=200)
 	background_image_location=models.CharField(max_length=200)
 	subject_id=models.CharField(null=True, max_length=50)
+	order=models.CharField(max_length=200)
 	def __unicode__(self):
 		return "subject: %s, experiment: %s"% (self.subject_id, self.experiment)

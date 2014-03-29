@@ -122,11 +122,9 @@ def run(request,  startTime, subjectID=None):
 		'startTime':startTime
 	})
 
-def finish(request):
+def finish(request):     
 	dict = eval(request.POST['finalData'])
-	#todo change start Time to prevStartTime
-	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['startTime'],experiment_start_time=dict['startTime'], experiment_end_time=dict['endTime'],actions=dict['pegMoves'], final_positions=dict['finalPositions'], distances=dict['distances'], subject_id=dict['subjectID'])
-
+	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['startTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
 	results.save()
 	return render(request, 'experiment/index.html', {
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
@@ -147,6 +145,7 @@ def about(request):
 
 def view_results(request):
 	results=Results.objects.all()[0]
+
 	response = HttpResponse(content_type='text/csv')
 	response['Content-Disposition'] = 'attachment; filename="'+results.experiment.name+'.csv"'
 	writer = csv.writer(response)
@@ -180,10 +179,12 @@ def view_results(request):
 		writer.writerow([fp['id'], fp['label'], fp['pos']])
 	writer.writerow([''])
 
-	#todo 
 	writer.writerow(['Distances'])
-	writer.writerow(['Label'])#all labels
-	writer.writerow([])#label, x, y
+	dict = eval(results.distances)
+	writer.writerow(['Label'] + eval(results.order))#all labels
+	for counter, l in enumerate(eval(results.order)):
+		writer.writerow([l] + dict[counter])#label, x, y
+	
 	writer.writerow([''])
 
 	writer.writerow(['Background Image Location:'])

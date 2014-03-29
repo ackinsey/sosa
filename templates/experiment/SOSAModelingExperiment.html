@@ -172,7 +172,6 @@ function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_
 	}
 	var peg_color = peg_red.toString(16) + peg_green.toString(16) + peg_blue.toString(16);
 	var label_color = label_red.toString(16) + label_green.toString(16) + label_blue.toString(16);
-	console.log(label_color);
 	if(image.length>0){
 		var img=new Image();
 		img.src=image;
@@ -205,6 +204,7 @@ finalData.endTime = formatDate(endTime);
 finalData.pegMoves = pegMoves;
 finalData.distances = findDistances();
 finalData.finalPositions = getFinalPositions();
+finalData.pegOrder = getPegOrder();
 finalData.subjectID = '{{subjectID}}';
 finalData.prevStartTime = '{{startTime}}';
 
@@ -223,7 +223,13 @@ finalData.prevStartTime = '{{startTime}}';
 
 }
 /***************************************/
+function getPegOrder(){
+	var order = new Array(pegs.length);
+	for(var i = 0; i < pegs.length; i++)
+		order[i] = pegs[i].label;
 
+	return order;
+}
 function findDistances(){
 
 /*two dimentional distances array*/
@@ -234,11 +240,11 @@ distances[i] = new Array(pegs.length);
 
 for(var i = 0; i<pegs.length; i++){
 	for(var j = 0; j <pegs.length; j++){
-		if(pegs[j].ID != i){
-		distances[i][j] = Math.sqrt(Math.pow((pegs[j].position.x - pegs[i].position.x),2) + Math.pow((pegs[j].position.y - pegs[i].position.y),2));
+		if(j != i){
+			distances[i][j] = Math.sqrt(Math.pow((pegs[j].position.x - pegs[i].position.x),2) + Math.pow((pegs[j].position.y - pegs[i].position.y),2));
 		}
 		else{
-		distances[i][j] = ("N/A");
+			distances[i][j] = ("N/A");
 		}
 	}
 }
