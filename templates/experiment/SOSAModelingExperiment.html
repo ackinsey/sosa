@@ -263,14 +263,9 @@ var lastPos;
 var finalPositions = new Array(pegs.length);
 var fp = [];
 for(var i = 0; i <finalPositions.length; i++){
-	lastPos = new position(DefaultPegX,DefaultPegY);
-		for(var j = 0; j < pegMoves.length - 1; j++){
-			if(pegMoves[i].ID == i){
-				lastPos = new position(pegMoves[i].currentPosition);
-				id = pegMoves[i].ID;
-				label = pegMoves[i].label;
-			}
-		}
+	lastPos = pegs[i].position;
+	id = pegs[i].id;
+	label = pegs.label;
 	fp.push(new finalpos(id, label, lastPos));
 }
 
