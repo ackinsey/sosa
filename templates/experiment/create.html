@@ -447,6 +447,8 @@
 				$('#label_slider_default').attr("checked",false);
 			else if(slider_type.indexOf("peg")!=-1)
 				$('#peg_slider_default').attr("checked",false);
+			
+			updateStimulusData();
 		});
 
 		$("#addOrder").on("click",function(){

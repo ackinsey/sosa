@@ -1,4 +1,4 @@
-from django.shortcuts import render,  HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, render_to_response,  HttpResponse, HttpResponseRedirect
 from experiment.models import Stimulus, Color, Experiment, Order, OrderItem, Results, Preview
 from json import dumps, loads, JSONEncoder
 from django.core.serializers import serialize
@@ -6,13 +6,14 @@ from django.utils.functional import Promise
 from django.utils.encoding import force_text
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
+from django.template import RequestContext
 from settings import MEDIA_URL
 import json, datetime, csv
 
 def home(request):
-	return render(request, 'experiment/index.html', {
+	return render_to_response('experiment/index.html', {
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
-    })
+    },context_instance=RequestContext(request))
 def create(request):
 	if request.POST:
 		json_data=json.loads(request.POST['json'])
@@ -112,8 +113,6 @@ def load(request):
 def run(request,  startTime, subjectID=None):
 	experiment=Experiment.objects.all()[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
-	print startTime
-	print 'xx'
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"stimuliList":stimuli,
 		"experiment":experiment,
@@ -132,13 +131,30 @@ def finish(request):
 
 def view_stimuli(request):
 	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
+	orders=Order.objects.filter(experiment=experiment)
+	stim_orders=[]
+	for order in orders:
+		stim_orders.append(OrderItem.objects.filter(order=order))
 	if request.POST:
-		print request.POST['prevstartTime']
 
 		return run(request, request.POST['prevstartTime'], request.POST['subjectID'])
 	return render(request, 'experiment/stimuli_preview.html', {
 		"experiment":experiment,
+		"orders":stim_orders,
 	})
+
+
+def view_all(request):
+	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
+	orders=Order.objects.filter(experiment=experiment)
+	stim_orders=[]
+	for order in orders:
+		stim_orders.append(OrderItem.objects.filter(order=order))
+
+	return render(request, 'experiment/viewStimuli.html', {
+		"experiment":experiment,
+		"orders":stim_orders,
+	})	
 
 def about(request):
 	return render(request, 'experiment/about.html', {})
@@ -175,6 +191,7 @@ def view_results(request):
 	writer.writerow(['Final Positions:'])
 	writer.writerow(['ID', 'Label', 'Position'])
 	dict = eval(results.final_positions)
+	print dict
 	for fp in dict:
 		writer.writerow([fp['id'], fp['label'], fp['pos']])
 	writer.writerow([''])
