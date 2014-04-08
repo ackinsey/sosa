@@ -16,7 +16,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'sosa',
         'USER':'mydb_user',
-        'PASSWORD':'password',
+        'PASSWORD':'your_password',
     }
 }
 
@@ -29,6 +29,8 @@ ALLOWED_HOSTS = []
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
 TIME_ZONE = 'America/Chicago'
+
+USE_TZ = False
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -44,14 +46,12 @@ USE_I18N = True
 # calendars according to the current locale.
 USE_L10N = True
 
-# If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = '/data/media/'
 
-MEDIA_URL = 'http://localhost:80/sosa/'
+MEDIA_URL = 'http://127.0.0.1/'
 
 STATIC_ROOT = ''
 
@@ -59,7 +59,10 @@ STATIC_URL = '/media/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '/data/media/sosa/',
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    '/data/media/',
 )
 
 # List of finder classes that know how to find static files in
@@ -73,16 +76,11 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'a2u!jh6!)0)zk@3@!u$^n(qnh305rtpy#*8_y)2xo#lr9s)i32'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.request',
-)
-
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+
 #     'django.template.loaders.eggs.Loader',
 )
 
@@ -114,6 +112,14 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'experiment',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+  # ...
+    'django.core.context_processors.request',
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.media',
+  # ...
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

@@ -8,9 +8,9 @@
 </head>
 <body>
 
-	<div id="container" style="width:800px; height:800px;border:1px solid #000000;">
+	<div id="container" style="width:402px; height:540px;border:1px solid #000000;">
 
-		<canvas id = "PreviewCanvas"  style="width:100%;height:95%;border:1px solid #000000;">
+		<canvas id = "PreviewCanvas" width="400" height="500"  style="border:1px solid #000000;">
 		</canvas>
 
 		<div id = "buttons" style = "width:100%;height:4%;float:left">
@@ -27,3 +27,122 @@
 	</div>
 </body>
 </html>
+<script type="text/javascript">
+	
+	$('#previousDiv').on('click',function(){
+		if(user_position>0)
+			user_position--;
+		reDrawCanvas();
+	});
+	$('#NextDiv').on('click',function(){
+		if((user_position+1)*3<current_order.length)
+			user_position++;
+		reDrawCanvas();
+	});
+
+	function drawBackground(){
+	c.fillStyle = backgroundColor;
+	c.fillRect(0,0,canvas.width,canvas.height);
+	/*if(board_image&&!hide_background)
+		c.drawImage(board_image,canvas.width/2-200,canvas.height/2-200,400,400);
+	*/
+	}
+
+	function reDrawCanvas(){
+		c.clearRect(0,0,canvas.width,canvas.height);
+		drawBackground();
+		redrawStim();
+	}
+
+	var user_position=0;
+	var hide_background=false;
+	var stim_orders=new Array();
+	var current_order;
+	var board_image;
+	var canvas = $("#PreviewCanvas")[0]
+	var c = canvas.getContext("2d");
+
+	//slider Values	
+	var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider = $("#shadeSLiderLabel").val();
+	//Default Values
+	var labelYPos = 100, labelXPos = 100;
+	var textColor = "#69C"
+	var font = "16px Arial";
+
+	var backgroundColor = "rgb(0,0,0)";
+	function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
+		this.stim_label=label;
+		this.is_image = is_image;
+		this.stim_image=image;
+		this.image_scale=image_scale;
+		this.label_color=label_color;
+		this.peg_color=peg_color;
+	}
+	/*Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
+	It also sets the board image if a board image exists.*/
+	(function(){
+		var peg_image=new Image();
+		peg_image.src="http://127.0.0.1/peg.png";
+		{% if experiment.board_image %}
+			board_image=new Image();
+			board_image.src="{{experiment.board_image.url}}";
+			board_image.onload=reDrawCanvas;
+		{% else %}
+			board_image=null;
+		{% endif %}
+		{% for order in orders %}
+		stim_orders[stim_orders.length]=new Array();
+		var image;
+		{% for order_item in order %}
+			var label="{{order_item.stimulus.label_text}}";
+			var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
+			var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
+			var image_scale="{{order_item.stimulus.image_scale}}";
+			var is_image="{{order_item.stimulus.is_peg}}";
+			
+				{% if order_item.stimulus.image %}
+					image=new Image();
+					image.src="{{order_item.stimulus.image.url}}";
+				{% else %}
+					image=peg_image;
+				{% endif %}
+				stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
+			{% endfor %}
+		{% endfor %}
+		current_order=stim_orders[0];
+		for(var i=0;i<stim_orders.length;i++)
+			$('#presentationOrderSelect').append("<option>Order "+(i+1)+"</option>");
+		for(var i=0;i<current_order.length;i++){
+			$('#stimuliSelect').append("<option>"+current_order[i].stim_label+"</option>");
+		}
+		image.onload=function(){
+			reDrawCanvas();
+			redrawStim();
+		}
+	})();
+	function redrawStim(){
+	for(var i=user_position*3;i<current_order.length&&i<user_position*3+3;i++)
+		drawStim(current_order[i],0,i-(user_position*3));
+	}
+	function drawStim(stim,x,y){
+		var position=0;
+		drawImageX(stim.stim_image, (canvas.width/2),y*(canvas.height/3)+(canvas.height/6));
+		drawTextX(stim.stim_label, (canvas.width/2),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
+	}
+	function drawTextX(text, xPos, yPos, label_color){
+		
+		c.textAlign = 'center';
+		c.fillStyle = "rgb("+label_color.red+", "+label_color.green+", "+label_color.blue+")";
+		c.font = font;
+		c.fillText(text,xPos,yPos);
+	}
+	function drawImageX(image,xPos, yPos){
+		if(image){
+			if(image.src=="http://127.0.0.1/peg.png")
+				c.drawImage(image,xPos-(image.width/4),yPos-(image.height/4),image.width/2,image.height/2);
+			else
+				c.drawImage(image,xPos-30,yPos-30,60,60);
+		}
+			
+	}
+	</script>
