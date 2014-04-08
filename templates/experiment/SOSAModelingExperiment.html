@@ -158,6 +158,7 @@ this.label = label;
 this.timeMoved = timeMoved;
 this.currentPosition = currentPosition;
 this.previousPosition = prevPosition;
+console.log(this.currentPosition.y / {{experiment.window_y}} * -24 + 12);
 }
 /***************************/
 
@@ -197,13 +198,16 @@ startTime = new Date();
 function onFinish(){
 var endTime = new Date();
 
+//convert our positions to inches
+toInches();
+
 var finalData = new Object();
 finalData.experiment_id='{{experiment.id}}';
 finalData.startTime = formatDate(startTime);
 finalData.endTime = formatDate(endTime);
-finalData.pegMoves = pegMoves;
+finalData.pegMoves = getpegMoves();
 finalData.distances = findDistances();
-finalData.finalPositions = getFinalPositions();
+finalData.finalPositions = getFinalPositions();//x
 finalData.pegOrder = getPegOrder();
 finalData.subjectID = '{{subjectID}}';
 finalData.prevStartTime = '{{startTime}}';
@@ -222,6 +226,16 @@ finalData.prevStartTime = '{{startTime}}';
 	});
 
 }
+
+function getpegMoves(){
+	for(var i = 0; i < pegMoves.length; i++){
+		pegMoves[i].currentPosition = new position(pegMoves[i].currentPosition.x/ {{experiment.window_x}} * 24 - 12, pegMoves[i].currentPosition.y / {{experiment.window_y}} * -24 +12);
+		pegMoves[i].previousPosition = new position(pegMoves[i].previousPosition.x/ {{experiment.window_x}} * 24 - 12, pegMoves[i].previousPosition.y / {{experiment.window_y}} * -24 +12);
+	}
+
+	return pegMoves;
+}
+
 /***************************************/
 function getPegOrder(){
 	var order = new Array(pegs.length);
@@ -241,7 +255,8 @@ distances[i] = new Array(pegs.length);
 for(var i = 0; i<pegs.length; i++){
 	for(var j = 0; j <pegs.length; j++){
 		if(j != i){
-			distances[i][j] = Math.sqrt(Math.pow((pegs[j].position.x - pegs[i].position.x),2) + Math.pow((pegs[j].position.y - pegs[i].position.y),2));
+			distances[i][j] = Math.sqrt(Math.pow(pegs[j].position.x - pegs[i].position.x,2) + Math.pow(pegs[j].position.y - pegs[i].position.y ,2));
+
 		}
 		else{
 			distances[i][j] = ("N/A");
@@ -273,6 +288,11 @@ return fp;
 
 }
 
+function toInches(){
+	for(var i = 0; i <pegs.length; i++){
+		pegs[i].position = new position(pegs[i].position.x / {{experiment.window_x}} * 24 - 12, pegs[i].position.y / {{experiment.window_y}} * -24 +12);
+	}
+}
 
 function formatDate(d){
 var hours = d.getHours();
