@@ -62,7 +62,8 @@ def create(request):
 				order_item.save()
 		return HttpResponseRedirect('/')
 	return render(request, 'experiment/create.html', {
-		"MEDIA_URL":MEDIA_URL
+		"MEDIA_URL":MEDIA_URL,
+		"stimulus":Stimulus.objects.all(),
     })
 
 def load(request):
@@ -85,13 +86,11 @@ def load(request):
 
 		p.background_color = color
 
-		try:
-			request.POST['labelsShow']
-		except:
-			p.show_labels = False
-
-		for field in Preview._meta.fields[4:]:
-			setattr(p, field.name, request.POST[field.name])
+		p.hide_background=True if request.POST['hide_background']=='true' else False
+		p.position=request.POST['position']
+		p.shade=request.POST['shade']
+		p.show_label=True if request.POST['show_label']=='true' else False
+		p.size=request.POST['size']
 
 		p.save()
 		return render(request, 'experiment/prompt.html', {
@@ -107,7 +106,47 @@ def load(request):
 	return render(request, 'experiment/previewExperiment.html', {
 		"orders":stim_orders,
 		"experiment":experiment,
+		"previews":Preview.objects.all()
 	    })
+
+def save_settings(request):
+	if request.POST:
+		finalData=json.loads(request.POST['finalData'])
+
+		boardColor=finalData['board_color']
+		bd_color=Color(red=boardColor['red'],green=boardColor['green'],blue=boardColor['blue'])
+		bd_color.save()
+
+		backgroundColor=finalData['background_color']
+		bg_color=Color(red=backgroundColor['red'],green=backgroundColor['green'],blue=backgroundColor['blue'])
+		bg_color.save()
+
+		preview=Preview(hide_background=finalData['hide_background'], name=finalData['preview_name'], board_color= bd_color,background_color=bg_color,show_label=finalData['show_labels'],position=finalData['position'],shade=finalData['shade'],size=finalData['size'])
+		preview.save()
+	response=HttpResponse()
+	return response
+
+def save_stimulus(request):
+	if request.POST:
+		finalData=json.loads(request.POST['finalData'])
+
+		label_color=finalData['label_color']
+		l_color=Color(red=label_color['red'],green=label_color['green'],blue=label_color['blue'])
+		l_color.save()
+
+		peg_color=finalData['peg_color']
+		p_color=Color(red=peg_color['red'],green=peg_color['green'],blue=peg_color['blue'])
+		p_color.save()
+
+		ex=Experiment(name="",version="",window_x=0,window_y=0)
+		ex.save()
+		print request.FILES
+		print request.POST
+		stimulus=Stimulus(experiment=ex,form_id=-1, label_text=finalData['label_text'],processingID=finalData['id'],image=request.POST['image'],
+			label_color=l_color,peg_color=p_color,is_peg=finalData['is_peg'],peg_size=finalData['peg_size'],image_size=finalData['image_size'])
+		stimulus.save()
+	response=HttpResponse()
+	return response
 
 
 def run(request,  startTime, subjectID=None):

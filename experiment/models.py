@@ -37,12 +37,17 @@ class Stimulus(models.Model):
 	    
 
 class Preview(models.Model):
+	name=models.CharField(max_length=80, default="Preview")
 	board_color=models.ForeignKey(Color, related_name="board_color")
 	background_color=models.ForeignKey(Color, related_name="background_color")
 	show_label=models.BooleanField(default=True)
 	position=models.IntegerField()
 	shade=models.IntegerField()
 	size=models.IntegerField()
+	hide_background=models.BooleanField(default=False)
+
+	def __unicode__(self):
+		return u'%s' % (self.name)
 
 class Order(models.Model):
 	experiment=models.ForeignKey(Experiment, related_name="experiment_order")

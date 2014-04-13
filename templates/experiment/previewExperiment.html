@@ -2,11 +2,34 @@
 {% block content %}
 <head>
 	<title>Preview Experiment</title>
+	<style>
+		#import_popup {
+		    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+		    background: none repeat scroll 0 0 #FFFFFF;
+		    border: 10px solid #ccc;
+		    border-radius: 3px 3px 3px 3px;
+		    color: #333333;
+		    display: none;
+		    font-size: 14px;
+		    left: 50%;
+		    margin-left: -402px;
+		    position: fixed;
+		    top: 20%;
+		    width: 500px;
+		    height:350px;
+		    z-index: 2;
+		}
+	</style>
 	<script>
 
 	$(document).ready(function(){
 
 		$( "#launchExperimentBtn" ).click(function() {
+			var newInput='<input type = "hidden"  id = "show_label" name = "show_label" value='+$('#labelsShow').prop('checked')+'>';
+			var oldInput='<input type = "hidden"  id = "hide_background" name = "hide_background" value='+hide_background+'>';
+			
+			$('#previewForm').append(newInput);
+			$('#previewForm').append(oldInput);
 			$( "#previewForm" ).submit();
 		});
 		$( "#HideBoardBackgroundBtn" ).click(function() {
@@ -20,15 +43,84 @@
 			alert("set Tilt");
 		});
 		$( "#importSettingsBtn" ).click(function() {
-			alert("Import here");
+			$("#import_popup").fadeIn(0500);
+			$("#container :input").attr("disabled", true);
+			$("#import_popup :input").attr("disabled", false);
 		});
 		$( "#exportSettingsBtn" ).click(function() {
-			alert("export here");
+			var name=prompt("Enter a name for your settings","name");
+			var finalData = new Object();
+			finalData.preview_name=name;
+			finalData.hide_background=hide_background;
+			
+			finalData.background_color=new Object();
+			finalData.background_color.red=$("#RSliderBackground").val();
+			finalData.background_color.green=$("#GSliderBackground").val();
+			finalData.background_color.blue=$("#BSliderBackground").val();
+
+			finalData.board_color=new Object();
+			finalData.board_color.red=$("#RSliderBoard").val();
+			finalData.board_color.green=$("#GSliderBoard").val();
+			finalData.board_color.blue=$("#BSliderBoard").val();
+
+			finalData.position=$("#position").val();
+			finalData.size=$("#size").val();
+			finalData.shade=$("#shade").val();
+			finalData.show_labels=$('#labelsShow').prop('checked');
+				$.ajax({
+					url:"/save_settings/",
+					type : "POST",
+					dataType: "json",
+					data : {
+						finalData: JSON.stringify(finalData),
+						csrfmiddlewaretoken: '{{ csrf_token }}',
+					},
+					complete : function(data) {
+						;//window.location.replace("/");
+					}
+				});
+			});
+		$('#importBtn').click(function(){
+			if($('#previewSelect').val()){
+				loadSettings($('#previewSelect').val()[0]);
+				hidePopup();
+			}else
+				alert("You must select a setting before you can import it!");
+		});
+		$('#cancelBtn').click(function(){
+			hidePopup();
 		});
 
 	});
+function hidePopup(){
+			$("#container :input").attr("disabled", false);
+			$("#import_popup :input").attr("disabled", true);
+			$("#import_popup").fadeOut(0500);
+}
+function loadSettings(previewIndex){
+	{% for preview in previews %}
+		if(previewIndex.toString()=={{preview.id}})
+			{
+				$('#RSliderBoard').val("{{preview.board_color.red}}");
+				$('#BSliderBoard').val("{{preview.board_color.blue}}");
+				$('#GSliderBoard').val("{{preview.board_color.green}}");
 
+				$('#RSliderBackground').val("{{preview.background_color.red}}");
+				$('#BSliderBackground').val("{{preview.background_color.blue}}");
+				$('#GSliderBackground').val("{{preview.background_color.green}}");
 
+				$('#shade').val("{{preview.size}}");
+				$('#size').val("{{preview.shade}}");
+				$('#position').val("{{preview.position}}");
+
+				{% if preview.show_label %}
+					$('#labelsShow').prop('checked',true);
+				{% else %}
+					$('#labelsShow').prop('checked',false);
+				{% endif %}
+			}
+	{% endfor %}
+}
 /***Default checkboxes and slider stuff**////
 $(document).ready(function(){
 	/******Changes The slider and the value count of the slider to its default value when the default checkbox is clicked*****/
@@ -134,7 +226,7 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 </head>
 <body>
 
-	<div id="container" style="width:900px; height:800px;border:1px solid #000000;">
+	<div id="container" style="width:900px; height:750px;border:1px solid #000000;">
 		
 		<div id = "topHalf" style = "width:100%;height:50%;">
 
@@ -319,12 +411,18 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 						<fieldset>
 							<legend>Import/Export Settings</legend>
 
-
-							<span id = "fileLocation"> no location chosen...</span>
-
-							<br>
-							<input type = "button" id = "importSettingsBtn" value = "import settings">
-
+							<a href="#"><input type = "button" id = "importSettingsBtn" value = "import settings"></a>
+							<div id="import_popup" >
+								<div>
+								<select id="previewSelect" style="height:90%; width:100%;" multiple="multiple"/>
+								{% for preview in previews%}
+									<option value="{{preview.id}}">{{preview}}</option>
+								{% endfor %}
+								</select>
+							</div>
+								<input type="button" id="importBtn" value="Import Settings">
+								<input type="button" id="cancelBtn" value="Cancel">
+							</div>
 							<input type = "button" id = "exportSettingsBtn" value = "export settings">
 
 						</div>
