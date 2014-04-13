@@ -405,6 +405,41 @@
 		    	switchPegImage($(this).val()=="image");  
 		    }
 		  });
+		  $( "#save_file_btn" ).click(function() {
+			//var name=prompt("Enter a name for your settings","name");
+			var finalData = new Object();
+			
+			finalData.id=$('#stim_processing_id').val();
+			finalData.label_text=$('#stim_lbl').val();
+			finalData.is_peg=selected_stimulus.stim_type==stim_types.peg?"True":"False";
+			finalData.peg_size=$('#size_type').val();
+			finalData.image_size=$('#size_type').val();
+			finalData.image=selected_stimulus.image;
+
+			finalData.peg_color=new Object();
+			finalData.peg_color.red=$("#red_peg").val();
+			finalData.peg_color.green=$("#green_peg").val();
+			finalData.peg_color.blue=$("#blue_peg").val();
+
+			finalData.label_color=new Object();
+			finalData.label_color.red=$("#red_label").val();
+			finalData.label_color.green=$("#green_label").val();
+			finalData.label_color.blue=$("#blue_label").val();
+			$('#container').append("<form id='img_form' style='display:none;'><input type='file' id='img' name='img' src='"+selected_stimulus.image+"'></form>");
+				$.ajax({
+					url:"/save_stimulus/",
+					type : "POST",
+					dataType: "json",
+					data : {
+						finalData: JSON.stringify(finalData),
+						image: $('#stim_image_0').val(),
+						csrfmiddlewaretoken: '{{ csrf_token }}',
+					},
+					complete : function(data) {
+						;//window.location.replace("/");
+					}
+				});
+			});
 		});
 		$('#label_slider_default').change(function(){
   			if($(this).is(':checked'))
@@ -496,8 +531,8 @@
 		    	"name":$('#experiment_name').val(),
 		    	"version":$('#experiment_version').val(),
 		    	"show_stim":true,
-		    	"window_x":1024,
-		    	"window_y":768,
+		    	"window_x":800,
+		    	"window_y":800,
 		    };
 		    var data =  JSON.stringify({
 		    		"experiment":experiment,
