@@ -24,13 +24,21 @@
 	</div>
 		<script>
 			var experiments=new Array();
-
+			
+			/**
+			 * @classdesc The Experiment class stores the name along with the ID of a given experiment. It also has a stimulus array where all of its associated stimulus are placed.
+			 * @param {String} name
+			 * @param {Number} id
+			 */
 			function experiment(name,id){
 				this.name=name;
 				this.id=id;
 				this.stimulus=new Array();
 			};
 
+			/**
+			 * Anonymous function which loads all of the stimulus into their given experiment at runtime This doesn't have any affect on the experiments themselves, it's just for the visual representation of them.
+			 */
 			(function(){
 				{% for stim in stimulus %}
 					if(!experiments["{{stim.experiment}}"])
@@ -41,7 +49,10 @@
 					$('#experiment_container').append("<option value="+experiment.id+">"+experiment.name+"</option>");
 				});
 			})();
-
+			
+			/**
+			 * @event Updates the select box that contains the stimulus when a new experiment has been selected.
+			 */
 			$('#experiment_container').change(function(){
 				$('#stimulus_container').text("");
 				experiments[$('#experiment_container option:selected').val()]
@@ -50,10 +61,19 @@
 					$('#stimulus_container').append("<option>"+stim+"</option>");
 				});
 			});
+
+			/**
+			 * @event Sends the user to the Create Experiment page.
+			 */
 			$('#create_stimulus_btn').on('click',function(){
 				window.location="/create/";				
 			});
+
+			/**
+			 * @event Sends the user to the Preview Experiment page.
+			 */
 			$('#run_experiment_btn').on('click',function(){
+				/*Make sure the user has selected an experiment first.*/
 				if($('#experiment_container option:selected').val())
 					window.location="/load/?experiment_id="+$('#experiment_container option:selected').val();
 				else
