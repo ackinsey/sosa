@@ -10,7 +10,6 @@
 		<form id = "viewStimuliForm" method = "post">
 				{% csrf_token %} 
 				<div id = "viewStim" style="width:25%;float:left;">
-				<!-- todo -->
 					<a href = "/view_all/?experiment_id={{experiment.id}}" target="_blank">
 						<input type = "button" id = "viewAllStimuliBtn"  value = "View All Stimuli">
 					</a>
@@ -24,31 +23,7 @@
 		</form>
 	</div>
 	<script type="text/javascript">
-	function drawBackground(){
-	c.fillStyle = backgroundColor;
-	c.fillRect(0,0,canvas.width,canvas.height);
-	if(board_image&&!hide_background)
-		c.drawImage(board_image,canvas.width/2-200,canvas.height/2-200,400,400);
-	}
 
-	function reDrawCanvas(){
-		c.clearRect(0,0,canvas.width,canvas.height);
-		drawBackground();
-		redrawStim();
-	}
-
-	$(document).ready(function(){
-		var now = new Date();
-		var startTime = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
-
-		$( "#viewAllStimuliBtn" ).click(function() {
-			
-		});
-		$( "#beginExperimentBtn" ).click(function() {
-			$("#prevstartTime").val(startTime);
-			$( "#viewStimuliForm" ).submit();
-		});
-	});
 	
 	var hide_background=false;
 	var stim_orders=new Array();
@@ -57,14 +32,57 @@
 	var canvas = $("#PreviewCanvas")[0]
 	var c = canvas.getContext("2d");
 
-	//slider Values	
-	var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider = $("#shadeSLiderLabel").val();
-	//Default Values
 	var labelYPos = 100, labelXPos = 100;
 	var textColor = "#69C"
 	var font = "16px Arial";
 
 	var backgroundColor = "rgb(0,0,0)";
+
+
+	/**
+	 * Fills the background with the value of 'background color.' Also displayed the background image if it exists.
+	 */
+	function drawBackground(){
+		c.fillStyle = backgroundColor;
+		c.fillRect(0,0,canvas.width,canvas.height);
+		if(board_image&&!hide_background)
+			c.drawImage(board_image,canvas.width/2-200,canvas.height/2-200,400,400);
+	}
+
+	/**
+	* Starts the process of redrawing everything on the campus. This function will clear the screen, then call the stimulus and background redraw functions.
+	*/
+	function reDrawCanvas(){
+		c.clearRect(0,0,canvas.width,canvas.height);
+		drawBackground();
+		redrawStim();
+	}
+
+	/**
+	* Function is fired on page load. Saves the current time so they data can be sent to the server.
+	*/
+	$(document).ready(function(){
+		var now = new Date();
+		var startTime = now.getHours()+':'+now.getMinutes()+':'+now.getSeconds();
+
+		/**
+		* Submits the form with the startTime on it and sends the user to the experiment page.
+		*/
+		$( "#beginExperimentBtn" ).click(function() {
+			$("#prevstartTime").val(startTime);
+			$( "#viewStimuliForm" ).submit();
+		});
+	});
+
+	/**
+	 * @classdesc The Stimulus  class allows for stimulus to be constructed on the client side for easier organization. It includes all the base data from the server-sider simulus.
+	 * @param {String} label
+	 * @param {Color} peg_color
+	 * @param {Color} label_color
+	 * @param {Image} image 
+	 * @param {Number} image_scale
+	 * @param {Boolean} is_image
+	 */
 	function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 		this.stim_label=label;
 		this.is_image = is_image;
@@ -73,8 +91,10 @@
 		this.label_color=label_color;
 		this.peg_color=peg_color;
 	}
-	/*Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
-	It also sets the board image if a board image exists.*/
+
+	/**
+	* Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached. It also sets the board image if a board image exists.
+	*/
 	(function(){
 		var peg_image=new Image();
 		peg_image.src="http://127.0.0.1/peg.png";
@@ -115,15 +135,34 @@
 			redrawStim();
 		}
 	})();
+
+	/**
+	 * Iterates over (up to) 9 of the stimulus and calls the redraw method on them. The Stimulus are drawn so there are 3 per row and at most 3 columns.
+	 */
 	function redrawStim(){
-	for(var i=0;i<current_order.length&&i<9;i++)
-		drawStim(current_order[i],Math.floor(i%3),Math.floor(i/3));
+		for(var i=0;i<current_order.length&&i<9;i++)
+			drawStim(current_order[i],Math.floor(i%3),Math.floor(i/3));
 	}
+
+	/**
+	 * Draws the stimulus image and stimulus label text based on x and y coordinates that are passed in.
+	 * @param {Stimulus} stim
+	 * @param {Number} x 
+	 * @param {Number} y
+	 */
 	function drawStim(stim,x,y){
 		var position=0;
 		drawImageX(stim.stim_image, x*(canvas.width/3)+(canvas.width/6),y*(canvas.height/3)+(canvas.height/6));
 		drawTextX(stim.stim_label, x*(canvas.width/3)+(canvas.width/6),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
 	}
+
+	/**
+	 * Used to draw each stimulus label text to the canvas.
+	 * @param {String} text
+	 * @param {Number} xPos 
+	 * @param {Number} yPos
+	 * @param {Color} label_color
+	 */
 	function drawTextX(text, xPos, yPos, label_color){
 		
 		c.textAlign = 'center';
@@ -131,6 +170,13 @@
 		c.font = font;
 		c.fillText(text,xPos,yPos);
 	}
+
+	/**
+	 * Used to draw each stimulus image to the canvas.
+	 * @param {Image} image
+	 * @param {Number} xPos 
+	 * @param {Number} yPos
+	 */
 	function drawImageX(image,xPos, yPos){
 		if(image){
 			if(image.src=="http://127.0.0.1/peg.png")

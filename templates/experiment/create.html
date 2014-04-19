@@ -171,7 +171,38 @@
 		</div>
 	</form>	
 	<script>
-		/*http://stackoverflow.com/questions/7142890/js-remove-an-array-element-by-index-in-javascript*/
+
+		
+
+		//JS Enumeration Hack
+		var stim_types = {peg: 0, image : 1};
+		var stimulus_list=new Array();
+		var current_stim_index = 0;
+	
+		var DEF_LABEL_COLOR={R : 155, G : 155, B : 255};
+		var DEF_PEG_COLOR={R : 88, G : 88, B : 255};
+		var order_list=new Array(new Order("Order 1", createDeepCopy(stimulus_list)));
+		var current_order_index=0;
+		var selected_stimulus;
+
+		$('#peg_settings :input').prop("disabled",true);
+
+		var canvas = $("#create_canvas")[0]
+		var c=canvas.getContext("2d");
+		var backgroundColor = "rgb(0,0,0)";
+		var font = "24px Arial";
+
+		var peg_image=new Image();
+		var stim_image=new Image();
+		var board_image=new Image();
+		peg_image.src="{{MEDIA_URL}}/peg.png";
+		reDrawCanvas();
+
+		/**
+		 * Given an index, removes that element from an array 
+		 * @param {Number} value 
+		 */
+		/*Taken from: http://stackoverflow.com/questions/7142890/js-remove-an-array-element-by-index-in-javascript*/
 		Array.prototype.unset = function(value) {
 		    if(value<this.length) {
 		    
@@ -212,36 +243,13 @@
 
 		});		
 
-		//JS Enumeration Hack
-		var stim_types = {peg: 0, image : 1};
-		var stimulus_list=new Array();
-		var current_stim_index = 0;
-	
-		var DEF_LABEL_COLOR={R : 155, G : 155, B : 255};
-		var DEF_PEG_COLOR={R : 88, G : 88, B : 255};
-		var order_list=new Array(new Order("Order 1", createDeepCopy(stimulus_list)));
-		var current_order_index=0;
-		var selected_stimulus;
-
-		$('#peg_settings :input').prop("disabled",true);
-
-		var canvas = $("#create_canvas")[0]
-		var c=canvas.getContext("2d");
-		var backgroundColor = "rgb(0,0,0)";
-		var font = "24px Arial";
-
-		reDrawCanvas();
 		function reDrawCanvas(){
 			c.clearRect(0,0,canvas.width,canvas.height);
 			drawBackground();
 			if(selected_stimulus!=null)
 				drawStim();
 		}
-		//http://127.0.0.1/
-		var peg_image=new Image();
-		var stim_image=new Image();
-		var board_image=new Image();
-		peg_image.src="{{MEDIA_URL}}/peg.png";
+
 		function drawStim(){
 			c.textAlign = 'center';
 			c.fillStyle = "rgb("+selected_stimulus.label_color.R+","+selected_stimulus.label_color.G+","+selected_stimulus.label_color.B+")";
@@ -256,7 +264,13 @@
 				var x=(canvas.width/4) -(c.measureText(label).width/2);
 				c.fillText(label,canvas.width/4,canvas.height/4);
 		}
-		/*http://stackoverflow.com/questions/4459379/preview-an-image-before-it-is-uploaded*/
+
+		/*Taken from: http://stackoverflow.com/questions/4459379/preview-an-image-before-it-is-uploaded*/
+		/**
+		 * Allows an image to be loaded and displayed on the canvas without submitting it to the server first.
+		 * @param {event} input 
+		 * @param {Image} image
+		 */
 		function readURL(input,image) {
 		    if (input.files && input.files[0]) {
 		        var reader = new FileReader();;
@@ -270,9 +284,13 @@
 		    }
 		}
 
+		/**
+		 * Draws the background portions of the experiment to the canvas. 
+		 */
 		function drawBackground(){
 			c.fillStyle = backgroundColor;
 			c.fillRect(0,0,canvas.width,canvas.height);
+			/*If the board image exists draw it, if not just draw a white box in its place*/
 			if($("#board_image").val().length>0)
 			{
             	c.drawImage(board_image,canvas.width*3/4-100,canvas.height/2-100,200,200);
@@ -406,7 +424,6 @@
 		    }
 		  });
 		  $( "#save_file_btn" ).click(function() {
-			//var name=prompt("Enter a name for your settings","name");
 			var finalData = new Object();
 			
 			finalData.id=$('#stim_processing_id').val();
@@ -518,6 +535,9 @@
 				selected_stimulus.stim_type=stim_types.peg;
 			}
 		}
+		/**
+		 * Switches which image uploader is displayed based on the selected stimulus. Hides all uploaders except for the one related to the selected stimulus.
+		 */
 		function switchImageUploader(){
 			$('.image_uploader').css("display","none");
 			if($('#stim_image_'+selected_stimulus.stim_index).length <= 0){

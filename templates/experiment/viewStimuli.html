@@ -29,31 +29,6 @@
 </html>
 <script type="text/javascript">
 	
-	$('#previousDiv').on('click',function(){
-		if(user_position>0)
-			user_position--;
-		reDrawCanvas();
-	});
-	$('#NextDiv').on('click',function(){
-		if((user_position+1)*3<current_order.length)
-			user_position++;
-		reDrawCanvas();
-	});
-
-	function drawBackground(){
-	c.fillStyle = backgroundColor;
-	c.fillRect(0,0,canvas.width,canvas.height);
-	/*if(board_image&&!hide_background)
-		c.drawImage(board_image,canvas.width/2-200,canvas.height/2-200,400,400);
-	*/
-	}
-
-	function reDrawCanvas(){
-		c.clearRect(0,0,canvas.width,canvas.height);
-		drawBackground();
-		redrawStim();
-	}
-
 	var user_position=0;
 	var hide_background=false;
 	var stim_orders=new Array();
@@ -62,14 +37,56 @@
 	var canvas = $("#PreviewCanvas")[0]
 	var c = canvas.getContext("2d");
 
-	//slider Values	
-	var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider = $("#shadeSLiderLabel").val();
-	//Default Values
 	var labelYPos = 100, labelXPos = 100;
 	var textColor = "#69C"
 	var font = "16px Arial";
 
 	var backgroundColor = "rgb(0,0,0)";
+
+	/**
+	 * Shows the 3 previous stimulus if there are any to be shown.
+	 */
+	$('#previousDiv').on('click',function(){
+		if(user_position>0)
+			user_position--;
+		reDrawCanvas();
+	});
+
+	/**
+	 * Shows the next 3 stimulus if there are any to be shown.
+	 */
+	$('#NextDiv').on('click',function(){
+		if((user_position+1)*3<current_order.length)
+			user_position++;
+		reDrawCanvas();
+	});
+
+	/**
+	 * Fills the background with the value of 'background color.'
+	 */
+	function drawBackground(){
+		c.fillStyle = backgroundColor;
+		c.fillRect(0,0,canvas.width,canvas.height);
+	}
+
+	/**
+	* Starts the process of redrawing everything on the campus. This function will clear the screen, then call the stimulus and background redraw functions.
+	*/
+	function reDrawCanvas(){
+		c.clearRect(0,0,canvas.width,canvas.height);
+		drawBackground();
+		redrawStim();
+	}
+
+	/**
+	 * @classdesc The Stimulus  class allows for stimulus to be constructed on the client side for easier organization. It includes all the base data from the server-sider simulus.
+	 * @param {String} label
+	 * @param {Color} peg_color
+	 * @param {Color} label_color
+	 * @param {Image} image 
+	 * @param {Number} image_scale
+	 * @param {Boolean} is_image
+	 */
 	function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 		this.stim_label=label;
 		this.is_image = is_image;
@@ -78,6 +95,7 @@
 		this.label_color=label_color;
 		this.peg_color=peg_color;
 	}
+
 	/*Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
 	It also sets the board image if a board image exists.*/
 	(function(){
@@ -120,22 +138,47 @@
 			redrawStim();
 		}
 	})();
+
+	/**
+	 * Iterates over the 3 "active" stimulus and calls their draw function
+	 */
 	function redrawStim(){
-	for(var i=user_position*3;i<current_order.length&&i<user_position*3+3;i++)
-		drawStim(current_order[i],0,i-(user_position*3));
+		for(var i=user_position*3;i<current_order.length&&i<user_position*3+3;i++)
+			drawStim(current_order[i],0,i-(user_position*3));
 	}
+
+	/**
+	 * Draws the stimulus image and stimulus label text based on x and y coordinates that are passed in.
+	 * @param {Stimulus} stim
+	 * @param {Number} x 
+	 * @param {Number} y
+	 */
 	function drawStim(stim,x,y){
 		var position=0;
 		drawImageX(stim.stim_image, (canvas.width/2),y*(canvas.height/3)+(canvas.height/6));
 		drawTextX(stim.stim_label, (canvas.width/2),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
 	}
+
+	/**
+	 * Used to draw each stimulus label text to the canvas.
+	 * @param {String} text
+	 * @param {Number} xPos 
+	 * @param {Number} yPos
+	 * @param {Color} label_color
+	 */
 	function drawTextX(text, xPos, yPos, label_color){
-		
 		c.textAlign = 'center';
 		c.fillStyle = "rgb("+label_color.red+", "+label_color.green+", "+label_color.blue+")";
 		c.font = font;
 		c.fillText(text,xPos,yPos);
 	}
+
+	/**
+	 * Used to draw each stimulus image to the canvas.
+	 * @param {Image} image
+	 * @param {Number} xPos 
+	 * @param {Number} yPos
+	 */
 	function drawImageX(image,xPos, yPos){
 		if(image){
 			if(image.src=="http://127.0.0.1/peg.png")
