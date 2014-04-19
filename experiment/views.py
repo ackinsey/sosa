@@ -11,10 +11,15 @@ from settings import MEDIA_URL
 import json, datetime, csv
 
 def home(request):
+	"""Sends the user to the homepage. Also sends Experiments to the page so they can be displayed as options to be loaded."""
 	return render_to_response('experiment/index.html', {
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
     },context_instance=RequestContext(request))
+
 def create(request):
+	"""The create page is where the user creates the Experiment and its related stimulus. This view handles all the data being submitted to the server."""
+	
+	""""If there is nothing in the POST that means the user was redirected or went to the page and didn't try to submit the form. In this case we will send them to a new form. If there is data in the post that data needs to be processed."""
 	if request.POST:
 		json_data=json.loads(request.POST['json'])
 		experiment_data = json_data.get('experiment', 'not found')
@@ -67,6 +72,9 @@ def create(request):
     })
 
 def load(request):
+	""""The Load view is where the Preview model is constructed. It also allows the user to get a visual preview of what affect their changes will have."""
+
+	"""If the POST has data in it we want to save it in the database. If not we want to display the page so they can fill out the form."""
 	if request.POST:
 		p = Preview()
 
@@ -110,6 +118,7 @@ def load(request):
 	    })
 
 def save_settings(request):
+	"""This is the AJAX based view for creating a new Preview instance. It is activated by hitting the Export button on the Preview page."""
 	if request.POST:
 		finalData=json.loads(request.POST['finalData'])
 
@@ -127,6 +136,7 @@ def save_settings(request):
 	return response
 
 def save_stimulus(request):
+	"""This view hasn't been implemented, but it includes the fundamentals to save the stimulus asynchronously through the Create Experiment page."""
 	if request.POST:
 		finalData=json.loads(request.POST['finalData'])
 
@@ -148,8 +158,8 @@ def save_stimulus(request):
 	response=HttpResponse()
 	return response
 
-
 def run(request,  startTime, subjectID=None):
+	"""This is the view fired off when the experiment is started. It returns the data required to run an experiment."""
 	experiment=Experiment.objects.all()[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
@@ -161,6 +171,7 @@ def run(request,  startTime, subjectID=None):
 	})
 
 def finish(request):     
+	"""This view is called when the user completes the experiment. It creates the Results model so the data can later be exported."""
 	dict = eval(request.POST['finalData'])
 	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['prevStartTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
 	results.save()
@@ -169,21 +180,22 @@ def finish(request):
     })
 
 def view_stimuli(request):
+	"""The view_stimuli view gives the subject a preview of the different stimulus included in the experiment. Once the user is finished viewing the stimulus the experiment is started from here."""
 	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
 	orders=Order.objects.filter(experiment=experiment)
 	stim_orders=[]
 	for order in orders:
 		stim_orders.append(OrderItem.objects.filter(order=order))
+	"""If there's data (time and id) in the POST start the experiment. Otherwise just display the view_stimuli page."""
 	if request.POST:
-
 		return run(request, request.POST['prevstartTime'], request.POST['subjectID'])
 	return render(request, 'experiment/stimuli_preview.html', {
 		"experiment":experiment,
 		"orders":stim_orders,
 	})
 
-
 def view_all(request):
+	"""The view_all view is fired off from the view_stimuli view when the user clicks the 'View All' button. This view allows the user to see all of the stimulus related to a specific experiment."""
 	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
 	orders=Order.objects.filter(experiment=experiment)
 	stim_orders=[]
@@ -196,9 +208,11 @@ def view_all(request):
 	})	
 
 def about(request):
+	"""Simple static about page for the SOSA project. Hopefully will be helpful when viewed locally on a VM without an Internet connection."""
 	return render(request, 'experiment/about.html', {})
 
 def view_results(request):
+	"""This view creates and initializes the download of the csv file associated with the completed experiment."""
 	results=Results.objects.all()[0]
 
 	response = HttpResponse(content_type='text/csv')
