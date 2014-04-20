@@ -210,6 +210,9 @@
 		    }   
 		}
 
+		/**
+		* @event Creates a new stimulus, add it to the experiment, and draw it to the screen. 
+		*/
 		$('#addStim').on('click',function(){
 			stimulus_list[stimulus_list.length]=new Stimulus(current_stim_index);
 			var lbl_name="Unlabled "+($('#peg_list > option').length+1);
@@ -224,6 +227,10 @@
 			updateStimulusData();
 			reDrawCanvas();
 		});
+
+		/**
+		* @event Deletes a stimulus from the experiment and from the canvas. 
+		*/
 		$('#removeStim').on('click',function(){
 			var n=selected_stimulus.stim_index+0;
 			for(var i=0;i<stimulus_list.length;i++)
@@ -243,6 +250,9 @@
 
 		});		
 
+		/**
+		* Starts the process of redrawing everything on the campus. This function will clear the screen, then call the stimulus and background redraw functions.
+		*/
 		function reDrawCanvas(){
 			c.clearRect(0,0,canvas.width,canvas.height);
 			drawBackground();
@@ -250,12 +260,16 @@
 				drawStim();
 		}
 
+		/**
+		* Draws the active stimulus to the canvas. 
+		*/
 		function drawStim(){
 			c.textAlign = 'center';
 			c.fillStyle = "rgb("+selected_stimulus.label_color.R+","+selected_stimulus.label_color.G+","+selected_stimulus.label_color.B+")";
 			c.font = font;
 			var label=selected_stimulus.toString();
 			var img_file=$("#stim_image_"+selected_stimulus.stim_index);
+			/*If the image exists draw it, if not we want to draw the default peg image in its place*/
 			if(img_file.val()<=0){		
 				c.drawImage(peg_image,canvas.width/4-(peg_image.width/2),canvas.height/2-(peg_image.height/2),peg_image.width,peg_image.height);
 			}else{
@@ -300,10 +314,22 @@
 
 			}
 		}
+
+		/**
+		 * @classdesc Stores all of the experiment's stimulus arranged in a user selected order. The user can have as many different orders as they desire.
+		 * @param {String} order_name
+		 * @param {Array} items
+		 */
 		function Order(order_name,items){
 			this.order_name=order_name;
 			this.order_items=items;
 
+			/**
+		 	* Switches two stimulus position within an order. Which two are switched is based on the index (which one is switched) and the direction (if it's switched with the stimulus above or below it).
+		 	* @param {Number} item_index
+		 	* @param {Number} direction
+		 	* @return {Boolean}
+		 	*/
 			this.changeOrder = function(item_index,direction){
 				//move down
 				if(direction==1&&item_index<this.order_items.length-1){
@@ -322,6 +348,11 @@
 					return false;
 			}
 		}
+
+		/**
+		 * @classdesc The Stimulus  class allows for stimulus to be constructed on the client side for easier organization. It includes all the base data from the server-sider simulus.
+		 * @param {Number} stim_index
+		 */
 		function Stimulus(stim_index) {
 			this.stim_index=stim_index;
 			this.stim_label="Unlabled "+(stim_index+1);
@@ -337,6 +368,11 @@
 				return this.stim_label;
 			}
 		}
+
+		/**
+		* Adds an order to the dropdown list
+		* @param {Order} order
+		*/
 		function setPegList(order){
 				if(!order)
 				{
@@ -350,12 +386,20 @@
 
 			    }
 		}
+
+		/**
+		* @event Updates when the user selects a new order. Updates the stimulus list to reflect that change.
+		*/
 		$('#order_list').change(function(event){
 			current_order_index=$('#order_list').prop("selectedIndex");
 			setPegList(order_list[current_order_index].order_items);
 			selected_stimulus=order_list[current_order_index].order_items[$( "#peg_list").prop("selectedIndex")];
 			$('#peg_list > option').find(":eq("+current_order_index+")").prop("selected",true);		
 		});
+
+		/**
+		* The main update function for when changes that need to be applied to the form and canvas are made. Updates the different labels and other form elements.
+		*/
 		function updateStimulusData(){
 			$('#stim_lbl').val(selected_stimulus.stim_label);
 			$('#stim_processing_id').val(selected_stimulus.processing_id);
@@ -378,26 +422,46 @@
 			reDrawCanvas();
 			stim_image.src=selected_stimulus.image_data;
 		}
+
+		/**
+		* Updates the image by reloading it. Used after an image is uploaded or changed on the form.
+		* @param {Event} event 
+		*/
 		function updateImage(event){
 			selected_stimulus.stim_image=$(event).val();
 			readURL(event,stim_image);
 		}
+
+		/**
+		* @event Updates the peg list text to reflect changes made to the label text field.
+		*/
 		$('body').on("change","#stim_lbl",function(){
 			selected_stimulus.stim_label=$('#stim_lbl').val();
 			$( "#peg_list option:selected" ).text(selected_stimulus.stim_label)
 			reDrawCanvas();
 		});
+
+		/**
+		* @event Fired off when the user selects a different stimulus. Updates the form and canvas to reflect the newly selected peg.
+		*/
 		$("select#peg_list").change(function(){
 			$('#peg_settings :input').prop("disabled",false);
 			selected_stimulus=order_list[current_order_index].order_items[$( "#peg_list").prop("selectedIndex")];
 			updateStimulusData();
 			reDrawCanvas();
 		});
+
+		/**
+		* @event Updates the current peg's ID to reflect changes made to the ID text field.
+		*/
 		$('body').on("change","#stim_processing_id",function(){
 			selected_stimulus.processing_id=$('#stim_processing_id').val();
 		});
-		$('#move_down_btn').on('click',function(){
-			
+
+		/**
+		* @event Moves the current peg down on the current peg order list
+		*/
+		$('#move_down_btn').on('click',function(){			
 			if($('#peg_list').val()){
 				if(order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),1)){
 					setPegList(order_list[current_order_index].order_items);
@@ -406,6 +470,10 @@
 			}
 			
 		});
+
+		/**
+		* @event Moves the current peg up on the current peg order list
+		*/
 		$('#move_up_btn').on('click',function(){
 			if($('#peg_list').val()){
 				if(order_list[current_order_index].changeOrder($( "#peg_list").prop("selectedIndex"),-1)){
@@ -413,9 +481,17 @@
 				}
 			}
 		});
+
+		/**
+		* @event Updates the image's scale when the image slider is changed. 
+		*/
 		$("#size_type").change(function(event){
 			selected_stimulus.image_scale=$(this).val();
 		});
+
+		/**
+		* Anonymous function that is triggered when the peg/image radio buttons are changed. 
+		*/
 		$(function(){
 		  $('.peg_image').click(function(){
 		    if ($(this).is(':checked'))
@@ -423,7 +499,11 @@
 		    	switchPegImage($(this).val()=="image");  
 		    }
 		  });
-		  $( "#save_file_btn" ).click(function() {
+
+		/**
+		* @event NOT FULLY IMPLEMENTED this function will asynchronously save the current stimulus to the server.
+		*/
+		$( "#save_file_btn" ).click(function() {
 			var finalData = new Object();
 			
 			finalData.id=$('#stim_processing_id').val();
@@ -453,11 +533,15 @@
 						csrfmiddlewaretoken: '{{ csrf_token }}',
 					},
 					complete : function(data) {
-						;//window.location.replace("/");
+						;
 					}
 				});
 			});
 		});
+
+		/**
+		 * @event Resets all label slider values to their defaults.
+		 */
 		$('#label_slider_default').change(function(){
   			if($(this).is(':checked'))
 				{
@@ -469,6 +553,9 @@
 				}
   		});
 
+		/**
+		 * @event Resets all peg slider values to their defaults.
+		 */
 		$('#peg_slider_default').change(function(){
   			if($(this).is(':checked'))
 				{
@@ -480,6 +567,9 @@
 				}
   		});
 
+		/**
+		* @event Handles all changes to the color slider. Updates the stimulus values when a slider is changed.
+		*/
 		$(".color_slider").change(function(event){
 			var slider_type="#"+event.target.id;
 			if("#red_label"==slider_type)
@@ -503,20 +593,36 @@
 			updateStimulusData();
 		});
 
+		/**
+		* @event Creates a new order and adds all the created stimulus to it.
+		*/
 		$("#addOrder").on("click",function(){
 			var new_index=$("#order_list option").size();
 			order_list[new_index]=new Order("Order "+new_index,createDeepCopy(stimulus_list));
 			$("#order_list").append($("<option></option>").attr("value","order_"+(new_index+1)).text("Order "+(new_index+1)));
 		});
 
+		/**
+		* @event Removes the current order and reverts to the next order in the list.
+		*/
 		$("#removeOrder").on("click",function(){
 			if($("#order_list option").size()>1){
 				$("option[value=order_"+($("#order_list option").size())+"]").remove();
 			}
 		});
+
+		/**
+		* @event Displays a newly uploaded or changed board image on the canvas.
+		*/
 		$('#board_image').on("change",function(){
 			readURL(this,board_image);
 		});
+		
+		/**
+		* Creates a deep copy of an array.
+		* @param {Array} items
+		* @return {Array} copied_items
+		*/		
 		function createDeepCopy(items){
 				var copied_items=new Array();
 				for(var i=0;i<items.length;i++){
@@ -524,6 +630,11 @@
 				}
 				return copied_items;
 			}
+
+		/**
+		* Switches the form from displaying the peg settings to image settings or vice versa.
+		* @param {Boolean} switchToImage
+		*/
 		function switchPegImage(switchToImage){
 			if(switchToImage){
 				$(".imageDisplay").css("display","");
@@ -535,6 +646,7 @@
 				selected_stimulus.stim_type=stim_types.peg;
 			}
 		}
+
 		/**
 		 * Switches which image uploader is displayed based on the selected stimulus. Hides all uploaders except for the one related to the selected stimulus.
 		 */
@@ -545,6 +657,10 @@
 			}
 			$('#stim_image_'+selected_stimulus.stim_index).css("display","");
 		}
+
+		/**
+		 * Submits the form with all of the stimulus, order, and experiment data. 
+		 */
 		$('#submit_btn').on('click',function(){
 		    $('#creationForm').attr('action', '');
 		    var experiment={
@@ -554,6 +670,7 @@
 		    	"window_x":800,
 		    	"window_y":800,
 		    };
+		 	/*The data is all dumped into a JSON object which is then submitted to the server via a hidden input field*/
 		    var data =  JSON.stringify({
 		    		"experiment":experiment,
 		        	"pegs" : stimulus_list,
