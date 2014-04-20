@@ -12,10 +12,6 @@
 					Name: <input id="experiment_name" type="text" ><br/>
 					Version: <input id="experiment_version" type="text">
 				</fieldset>
-				<br/>
-				<div>
-					Current Open File: <span id="experiment_filename" style="float:right;">No File Selected</span>
-				</div>
 				</div>
 				<div id="experiment_buttons">
 					<input type="button" value="New"><br/>
@@ -35,14 +31,16 @@
 						<span style="float:right;"><input type="button" value="Revert"></span>
 						</div>
 				</fieldset>
+				<div style="float:right;width:50%;">
 				<fieldset>
 					<legend>Display</legend>
-					Window Size: <select>
-							<option>1280x720</option>
-							<option>1024x768</option>
-							<option>640x480</option>
+					Window Size: <select id="window_size">
+							<option value="800">800x800</option>
+							<option value="600">600x600</option>
+							<option value="400">400x400</option>
 						</select>
 				</fieldset>
+				</div>
 			</div>
 			<div id="canvas_container" style="padding:10px;" >
 				<canvas id="create_canvas" width="800px" height="300px" style="border:1px solid #000000;"></canvas>
@@ -124,11 +122,11 @@
 							</td>
 							<td>
 								<div>
-									R <input type="range"  class="color_slider" id="red_peg" min="0" max="255" value="255" oninput="red_peg_output.value=red_peg.value"><output id="red_peg_output" for="red_peg">255</output>
+									R <input type="range"  class="color_slider disabled_field" id="red_peg" min="0" max="255" value="255" oninput="red_peg_output.value=red_peg.value"><output id="red_peg_output" for="red_peg">255</output>
 									<br/>
-									G <input type="range"  class="color_slider" id="green_peg" min="0" max="255" value="255" oninput="green_peg_output.value=green_peg.value"><output id="green_peg_output" for="green_peg">255</output>
+									G <input type="range"  class="color_slider disabled_field" id="green_peg" min="0" max="255" value="255" oninput="green_peg_output.value=green_peg.value"><output id="green_peg_output" for="green_peg">255</output>
 									<br/>
-									B <input type="range"  class="color_slider" id="blue_peg" min="0" max="255" value="255" oninput="blue_peg_output.value=blue_peg.value"><output id="blue_peg_output" for="blue_peg">255</output>
+									B <input type="range"  class="color_slider disabled_field" id="blue_peg" min="0" max="255" value="255" oninput="blue_peg_output.value=blue_peg.value"><output id="blue_peg_output" for="blue_peg">255</output>
 								</div>
 							</td>
 							<td><input id="peg_slider_default" type="checkbox"> 
@@ -147,9 +145,13 @@
 							</td>
 						</tr>
 						<tr class="imageDisplay"  style="display:none;">								
-							<td id="imageTable">
-								<input type="file" class="image_uploader"  onchange="updateImage(this);" id="stim_image_0" name="stimulus_image_0">
+							<td colspan=98% id="imageTable">
+								<input  type="file" class="image_uploader"  onchange="updateImage(this);" id="stim_image_0" name="stimulus_image_0">
 								<div id="stim_image_helper"></div>
+							</td>
+							<td colspan=1%>
+							</td>
+							<td colspan=1%>
 							</td>
 						</tr>
 						<tr class="imageDisplay" style="display:none;">
@@ -498,7 +500,8 @@
 		    {
 		    	switchPegImage($(this).val()=="image");  
 		    }
-		  });
+		  $('.disabled_field').attr("disabled", "disabled");
+		 });
 
 		/**
 		* @event NOT FULLY IMPLEMENTED this function will asynchronously save the current stimulus to the server.
@@ -667,8 +670,8 @@
 		    	"name":$('#experiment_name').val(),
 		    	"version":$('#experiment_version').val(),
 		    	"show_stim":true,
-		    	"window_x":800,
-		    	"window_y":800,
+		    	"window_x":$('#window_size').val(),
+		    	"window_y":$('#window_size').val(),
 		    };
 		 	/*The data is all dumped into a JSON object which is then submitted to the server via a hidden input field*/
 		    var data =  JSON.stringify({
