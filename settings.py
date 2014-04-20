@@ -16,7 +16,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'sosa',
         'USER':'mydb_user',
-        'PASSWORD':'your_password',
+        'PASSWORD':'password',
     }
 }
 
@@ -51,7 +51,7 @@ USE_L10N = True
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = '/data/media/'
 
-MEDIA_URL = 'http://127.0.0.1/'
+MEDIA_URL = 'http://localhost:80/'
 
 STATIC_ROOT = ''
 

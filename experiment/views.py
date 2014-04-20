@@ -100,6 +100,7 @@ def load(request):
 		p.show_label=True if request.POST['show_label']=='true' else False
 		p.size=request.POST['size']
 
+		p.experiment=Experiment.objects.get(id=request.GET['experiment_id'])
 		p.save()
 		return render(request, 'experiment/prompt.html', {
 		})
@@ -158,11 +159,14 @@ def save_stimulus(request):
 	response=HttpResponse()
 	return response
 
-def run(request,  startTime, subjectID=None):
+def run(request, id, startTime, subjectID=None):
 	"""This is the view fired off when the experiment is started. It returns the data required to run an experiment."""
-	experiment=Experiment.objects.all()[0]
+	experiment=Experiment.objects.get(id=id)
+	#were just going to grab the last one here.
+	preview = Preview.objects.filter(experiment=experiment).order_by('id')[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
+		"preview":preview,
 		"stimuliList":stimuli,
 		"experiment":experiment,
 		"MEDIA_URL":MEDIA_URL,
@@ -179,6 +183,7 @@ def finish(request):
 		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
     })
 
+
 def view_stimuli(request):
 	"""The view_stimuli view gives the subject a preview of the different stimulus included in the experiment. Once the user is finished viewing the stimulus the experiment is started from here."""
 	experiment = Experiment.objects.get(id=request.GET['experiment_id'])
@@ -188,7 +193,7 @@ def view_stimuli(request):
 		stim_orders.append(OrderItem.objects.filter(order=order))
 	"""If there's data (time and id) in the POST start the experiment. Otherwise just display the view_stimuli page."""
 	if request.POST:
-		return run(request, request.POST['prevstartTime'], request.POST['subjectID'])
+		return run(request, request.GET['experiment_id'], request.POST['prevstartTime'], request.POST['subjectID'])
 	return render(request, 'experiment/stimuli_preview.html', {
 		"experiment":experiment,
 		"orders":stim_orders,

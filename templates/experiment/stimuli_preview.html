@@ -97,7 +97,7 @@
 	*/
 	(function(){
 		var peg_image=new Image();
-		peg_image.src="http://127.0.0.1/peg.png";
+		peg_image.src="http://localhost:80/peg.png";
 		{% if experiment.board_image %}
 			board_image=new Image();
 			board_image.src="{{experiment.board_image.url}}";
@@ -179,7 +179,7 @@
 	 */
 	function drawImageX(image,xPos, yPos){
 		if(image){
-			if(image.src=="http://127.0.0.1/peg.png")
+			if(image.src=="http://localhost:80/peg.png")
 				c.drawImage(image,xPos-(image.width/4),yPos-(image.height/4),image.width/2,image.height/2);
 			else
 				c.drawImage(image,xPos-30,yPos-30,60,60);

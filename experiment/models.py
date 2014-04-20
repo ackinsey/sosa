@@ -71,6 +71,7 @@ class Stimulus(models.Model):
 
     Attributes:
 		name: The preview name. Useful for identifying which Preview you are loading when using the Import functionality on the Preview Page.
+		experiment: ForeignKey over to the experiment this is tied to.
 		board_color:A ForeignKey to the color of the 'board_color.' Currently not implemented.
 		background_color: A ForeignKey to the color of the 'background_color.' Changes the background color behind the board image.
 		show_label: If False then labels will not be displayed.
@@ -81,6 +82,7 @@ class Stimulus(models.Model):
 """
 class Preview(models.Model):
 	name=models.CharField(max_length=80, default="Preview")
+	experiment=models.ForeignKey(Experiment, related_name="experiment")
 	board_color=models.ForeignKey(Color, related_name="board_color")
 	background_color=models.ForeignKey(Color, related_name="background_color")
 	show_label=models.BooleanField(default=True)

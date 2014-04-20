@@ -56,16 +56,17 @@ setInterval(function() {
 }, 1000/FPS);
 
 function update() {
-	canvas.fillStyle = "black";
+	canvas.fillStyle = "#" + "{{preview.background_color.red}}".toString(16) + "{{preview.background_color.green}}".toString(16) + "{{preview.background_color.blue}}".toString(16);
 	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
 	if(imageObj.src != ""){
 		canvas.drawImage(imageObj, 100, 100, {{experiment.window_x}}-200, {{experiment.window_y}}-200);
 	}
  }
 function draw() { 
+	
 	for(var i = 0; i < pegs.length; i++){
 		canvas.fillStyle = pegs[i].peg_color;
-		canvas.font="20px Georgia";
+		canvas.font=({{preview.size}}/4+3)+"px Georgia";
 		if(pegs[i].image){
 			canvas.drawImage(pegs[i].image, pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
 		}
@@ -73,10 +74,12 @@ function draw() {
 			canvas.drawImage(peg_image, pegs[i].position.x - ( peg_image.width/4), pegs[i].position.y - ( peg_image.height/4), peg_image.width/2, peg_image.height/2);
 		}
 		canvas.fillStyle = pegs[i].label_color;
-		
-		var x=(canvas.measureText(pegs[i].label).width/2);
-		canvas.fillText(pegs[i].label, pegs[i].position.x - x, pegs[i].position.y - 50);
+		if("{{preview.show_label}}"=="True"){
+			var x=(canvas.measureText(pegs[i].label).width/2);
+			canvas.fillText(pegs[i].label, pegs[i].position.x - x, pegs[i].position.y - 50 + ((100-{{preview.position}}) / 3));
+		}	
 	}
+	
 }
 
 $('canvas')[0].addEventListener("mousedown", function(evt) {
@@ -129,7 +132,7 @@ var pegMoved;
 var imageObj = new Image();
 imageObj.src = {% if experiment.board_image %}'{{experiment.board_image.url}}'{% else %}''{% endif %};
 var peg_image = new Image();
-peg_image.src="{{MEDIA_URL}}/peg.png";
+peg_image.src="{{MEDIA_URL}}peg.png";
 
 
 /*******Objects*////////
