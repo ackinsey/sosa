@@ -3,131 +3,173 @@
 <head>
 	<title>Preview Experiment</title>
 	<style>
-		#import_popup {
-		    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
-		    background: none repeat scroll 0 0 #FFFFFF;
-		    border: 10px solid #ccc;
-		    border-radius: 3px 3px 3px 3px;
-		    color: #333333;
-		    display: none;
-		    font-size: 14px;
-		    left: 50%;
-		    margin-left: -402px;
-		    position: fixed;
-		    top: 20%;
-		    width: 500px;
-		    height:350px;
-		    z-index: 2;
-		}
+	#import_popup {
+		font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+		background: none repeat scroll 0 0 #FFFFFF;
+		border: 10px solid #ccc;
+		border-radius: 3px 3px 3px 3px;
+		color: #333333;
+		display: none;
+		font-size: 14px;
+		left: 50%;
+		margin-left: -402px;
+		position: fixed;
+		top: 20%;
+		width: 500px;
+		height:350px;
+		z-index: 2;
+	}
 	</style>
 	<script>
-
 	$(document).ready(function(){
 
-		$( "#launchExperimentBtn" ).click(function() {
-			var newInput='<input type = "hidden"  id = "show_label" name = "show_label" value='+$('#labelsShow').prop('checked')+'>';
-			var oldInput='<input type = "hidden"  id = "hide_background" name = "hide_background" value='+hide_background+'>';
-			
-			$('#previewForm').append(newInput);
-			$('#previewForm').append(oldInput);
-			$( "#previewForm" ).submit();
-		});
-		$( "#HideBoardBackgroundBtn" ).click(function() {
-			hide_background=!hide_background;
-			reDrawCanvas();
-		});
-		$( "#logOutputLocationBtn" ).click(function() {
-			alert("choose output location here");
-		});
-		$( "#boardTiltBtn" ).click(function() {
-			alert("set Tilt");
-		});
-		$( "#importSettingsBtn" ).click(function() {
-			$("#import_popup").fadeIn(0500);
-			$("#container :input").attr("disabled", true);
-			$("#import_popup :input").attr("disabled", false);
-		});
-		$( "#exportSettingsBtn" ).click(function() {
-			var name=prompt("Enter a name for your settings","name");
-			var finalData = new Object();
-			finalData.preview_name=name;
-			finalData.hide_background=hide_background;
-			
-			finalData.background_color=new Object();
-			finalData.background_color.red=$("#RSliderBackground").val();
-			finalData.background_color.green=$("#GSliderBackground").val();
-			finalData.background_color.blue=$("#BSliderBackground").val();
+/**
+ * @event Redirects to the viewStimuli Page
+ */
+ $( "#launchExperimentBtn" ).click(function() {
+ 	var newInput='<input type = "hidden"  id = "show_label" name = "show_label" value='+$('#labelsShow').prop('checked')+'>';
+ 	var oldInput='<input type = "hidden"  id = "hide_background" name = "hide_background" value='+hide_background+'>';
 
-			finalData.board_color=new Object();
-			finalData.board_color.red=$("#RSliderBoard").val();
-			finalData.board_color.green=$("#GSliderBoard").val();
-			finalData.board_color.blue=$("#BSliderBoard").val();
+ 	$('#previewForm').append(newInput);
+ 	$('#previewForm').append(oldInput);
+ 	$( "#previewForm" ).submit();
+ });
 
-			finalData.position=$("#position").val();
-			finalData.size=$("#size").val();
-			finalData.shade=$("#shade").val();
-			finalData.show_labels=$('#labelsShow').prop('checked');
-				$.ajax({
-					url:"/save_settings/",
-					type : "POST",
-					dataType: "json",
-					data : {
-						finalData: JSON.stringify(finalData),
-						csrfmiddlewaretoken: '{{ csrf_token }}',
-					},
-					complete : function(data) {
+/**
+ * @event Gets rid of the backgroundBoard image/color if one was specified in the createPage.
+ */
+ $( "#HideBoardBackgroundBtn" ).click(function() {
+ 	hide_background=!hide_background;
+ 	reDrawCanvas();
+ });
+
+/**
+ * @event To be implemented at a later date, a file browser should be shown to choose a location to save the experiment
+ */
+ $( "#logOutputLocationBtn" ).click(function() {
+ 	alert("choose output location here");
+ });
+
+ /**
+ * @event To be implemented at a later date, an alternate window will appear to set the degree of tilt of the board
+ */
+ $( "#boardTiltBtn" ).click(function() {
+ 	alert("set Tilt");
+ });
+
+ /**
+ * @event Allows the user to import pre-exported settings,board color and label specs, from the DB into the current experiment
+ */
+ $( "#importSettingsBtn" ).click(function() {
+ 	$("#import_popup").fadeIn(0500);
+ 	$("#container :input").attr("disabled", true);
+ 	$("#import_popup :input").attr("disabled", false);
+ });
+
+ /**
+ * @event Allows the user to export settings, board color and label specs, to the DB from the current experiment
+ */
+ $( "#exportSettingsBtn" ).click(function() {
+ 	var name=prompt("Enter a name for your settings","name");
+ 	var finalData = new Object();
+ 	finalData.preview_name=name;
+ 	finalData.hide_background=hide_background;
+
+ 	finalData.background_color=new Object();
+ 	finalData.background_color.red=$("#RSliderBackground").val();
+ 	finalData.background_color.green=$("#GSliderBackground").val();
+ 	finalData.background_color.blue=$("#BSliderBackground").val();
+
+ 	finalData.board_color=new Object();
+ 	finalData.board_color.red=$("#RSliderBoard").val();
+ 	finalData.board_color.green=$("#GSliderBoard").val();
+ 	finalData.board_color.blue=$("#BSliderBoard").val();
+
+ 	finalData.position=$("#position").val();
+ 	finalData.size=$("#size1").val();
+ 	finalData.shade=$("#shade").val();
+ 	finalData.show_labels=$('#labelsShow').prop('checked');
+ 	$.ajax({
+ 		url:"/save_settings/",
+ 		type : "POST",
+ 		dataType: "json",
+ 		data : {
+ 			finalData: JSON.stringify(finalData),
+ 			csrfmiddlewaretoken: '{{ csrf_token }}',
+ 		},
+ 		complete : function(data) {
 						;//window.location.replace("/");
 					}
 				});
-			});
-		$('#importBtn').click(function(){
-			if($('#previewSelect').val()){
-				loadSettings($('#previewSelect').val()[0]);
-				hidePopup();
-			}else
-				alert("You must select a setting before you can import it!");
-		});
-		$('#cancelBtn').click(function(){
-			hidePopup();
-		});
+ });
 
-	});
+/**
+ * @event Button that is clicked once the user selects the settings they want to import from the pop up box
+ */
+$('#importBtn').click(function(){
+	if($('#previewSelect').val()){
+		loadSettings($('#previewSelect').val()[0]);
+		hidePopup();
+	}else
+	alert("You must select a setting before you can import it!");
+});
+
+/**
+ * @event pop up box cancel
+ */
+$('#cancelBtn').click(function(){
+	hidePopup();
+});
+
+});
+
+/**
+ *clears the settings pop up box from the screen
+ */
 function hidePopup(){
-			$("#container :input").attr("disabled", false);
-			$("#import_popup :input").attr("disabled", true);
-			$("#import_popup").fadeOut(0500);
+	$("#container :input").attr("disabled", false);
+	$("#import_popup :input").attr("disabled", true);
+	$("#import_popup").fadeOut(0500);
 }
+/**
+ * method that loads the selected settings file from the pop up box into the current experiment
+ * @param {Number} previewIndex -> the index of the settings file to use
+
+ */
 function loadSettings(previewIndex){
 	{% for preview in previews %}
-		if(previewIndex.toString()=={{preview.id}})
-			{
-				$('#RSliderBoard').val("{{preview.board_color.red}}");
-				$('#BSliderBoard').val("{{preview.board_color.blue}}");
-				$('#GSliderBoard').val("{{preview.board_color.green}}");
+	if(previewIndex.toString()=={{preview.id}})
+	{
+		$('#RSliderBoard').val("{{preview.board_color.red}}");
+		$('#BSliderBoard').val("{{preview.board_color.blue}}");
+		$('#GSliderBoard').val("{{preview.board_color.green}}");
 
-				$('#RSliderBackground').val("{{preview.background_color.red}}");
-				$('#BSliderBackground').val("{{preview.background_color.blue}}");
-				$('#GSliderBackground').val("{{preview.background_color.green}}");
+		$('#RSliderBackground').val("{{preview.background_color.red}}");
+		$('#BSliderBackground').val("{{preview.background_color.blue}}");
+		$('#GSliderBackground').val("{{preview.background_color.green}}");
 
-				$('#shade').val("{{preview.shade}}");
-				$('#size').val("{{preview.size}}");
-				$('#position').val("{{preview.position}}");
+		$('#shade').val("{{preview.shade}}");
+		$('#size1').val("{{preview.size}}");
+		$('#position').val("{{preview.position}}");
 
-				{% if preview.show_label %}
-					$('#labelsShow').prop('checked',true);
-				{% else %}
-					$('#labelsShow').prop('checked',false);
-				{% endif %}
-			}
+		{% if preview.show_label %}
+		$('#labelsShow').prop('checked',true);
+		{% else %}
+		$('#labelsShow').prop('checked',false);
+		{% endif %}
+	}
 	{% endfor %}
 }
-/***Default checkboxes and slider stuff**////
+
 $(document).ready(function(){
-	/******Changes The slider and the value count of the slider to its default value when the default checkbox is clicked*****/
+/**
+ * @event Changes The slider and the value count of the sliders to their default value when the default checkboxs are clicked
+ */
 	$(":checkbox").change(function(){
+		if ($(this).attr('name') == "labelsShow")
+			reDrawCanvas();
 		if(this.checked){
 			if ($(this).attr('name') == "defaultBoardCheckbox") {
-				
 				$("#RSliderBoard").val(255);
 				$("#RSliderBoardOutput").val(255);
 				$("#GSliderBoard").val(255);
@@ -144,12 +186,15 @@ $(document).ready(function(){
 				$("#BSliderBackgroundOutput").val(0);
 			}
 			else if($(this).attr('name') == "defaultLabelOutput"){
+				$("#position").val(60);
 				$("#positionSLiderLabel").val(60);
-				$("#positionSLiderOutput").val(60);
+				$("#positionOutput").val(60);
+				$("#shade").val(100);
 				$("#shadeSLiderLabel").val(100);
-				$("#shadeSLiderOutput").val(100);
+				$("#shadeOutput").val(100);
+				$("#size1").val(75);
 				$("#sizeSLiderLabel").val(75);
-				$("#sizeSLiderOutput").val(75);
+				$("#sizeOutput").val(75);
 
 			}
 		}
@@ -163,13 +208,14 @@ $(document).ready(function(){
 		}
 	});
 /********************************************************************************************************/
-
-	/*****Changes the default checkbox to unchecked when atleast one of the three sliders in a group is changed 
-	if all the sliders in the group are manually moved to the default the box rechecks itself *****/	
-		$("#RSliderBoard").change(function(){
-			$('#defaultBoardCheckbox').attr('checked', false);
-			checkIfDefault($("#RSliderBoard"), $("#GSliderBoard"), $("#BSliderBoard"), 255, 255, 255, $('#defaultBoardCheckbox'));
-		});
+/**
+ * @event Changes the default checkbox to unchecked when atleast one of the three sliders in a group is changed 
+	if all the sliders in the group are manually moved to the default the corresponding checkbox rechecks itself
+ */
+	$("#RSliderBoard").change(function(){
+		$('#defaultBoardCheckbox').attr('checked', false);
+		checkIfDefault($("#RSliderBoard"), $("#GSliderBoard"), $("#BSliderBoard"), 255, 255, 255, $('#defaultBoardCheckbox'));
+	});
 	$("#GSliderBoard").change(function(){
 		$('#defaultBoardCheckbox').attr('checked', false);
 		checkIfDefault($("#RSliderBoard"), $("#GSliderBoard"), $("#BSliderBoard"), 255, 255, 255, $('#defaultBoardCheckbox'));
@@ -209,19 +255,23 @@ $(document).ready(function(){
 });
 /*****************************************************************************************************************************/
 
-/****Function to check wheter or not the sliders were manually moved to the default position, if so the corisponding 
-default box is checked *****/
+/**
+ * Function to check wheter or not the sliders were manually moved to the default position, if so the corresponding 
+default box is checked
+* @param {HTML range} slide1 -> value of the first slider
+* @param {HTML range} slide2 -> value of the second slider
+* @param {HTML range} slide3 -> value of the thrid slider
+* @param {Number} value1 -> default value of first slider
+* @param {Number} value2 -> default value of second slider
+* @param {Number} value3 -> defaulst value of thrid slider
+* @param {HTML Checkbox} checkboxToCheck -> the corresponding checkbox to the sliders
+*/
 function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkboxToCheck){
 	if(slide1.val() == value1 && slide2.val() == value2 && slide3.val() == value3)
 		checkboxToCheck.prop('checked', true)
 }
 /********************************************************************************************************************************/
 </script>
-
-
-
-
-
 
 </head>
 <body>
@@ -361,14 +411,11 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 									<td >
 										Default
 									</td>
-
-
 								</tr>
-
 								<tr>
 									<td>Position:</td>
 									<td align = "left">
-										<input type="range" id = "position" name = "position" min = "1" max = "100" value = 60 oninput="pos.value=positionOutput.value">
+										<input type="range" id = "position" name = "position" min = "1" max = "100" value = 60 oninput="positionOutput.value=position.value">
 										<td>
 											<output id = "positionOutput" name="pos" for="position">60</output>
 										</td>
@@ -382,9 +429,9 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 									<td>Shade:</td>
 									<td align = "left">
 
-										<input type="range" id = "shade" name = "shade" min = "1" max = "100" value = 100 oninput="shade.value=shadeSLiderLabel.value"> 
+										<input type="range" id = "shade" name = "shade" min = "1" max = "100" value = 100 oninput="shadeOutput.value=shade.value"> 
 										<td>
-											<output id = "shadeSLiderOutput" name="shadeOutput" for="shadeSLiderLabel">100 </output>
+											<output id = "shadeOutput" name="shadeOutput" for="shade">100 </output>
 										</td>
 									</td>
 
@@ -392,20 +439,15 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 								<tr>
 									<td>Size:</td>
 									<td align = "left">
-										<input type="range" id = "size" name = "size" min = "1" max = "100" value = 75 oninput="sizeing.value=sizeSLiderLabel.value">
+										<input type="range" id = "size1" name = "size" min = "1" max = "100" value = 75 oninput="sizeOutput.value=size1.value">
 										<td>
-											<output id = "sizeSLiderOutput" name="sizeing"  for="sizeSLiderLabel">75</output>
+											<output id = "sizeOutput" name="sizeing"  for="size"> 75</output>
 										</td>
-
 									</td>
 								</tr>
-
 							</table>
-
 						</fieldset>
-
 					</div>
-
 					<div id="Import_Export" style="width:100%;float:left">
 
 						<fieldset>
@@ -414,60 +456,57 @@ function checkIfDefault(slide1, slide2, slide3, value1, value2, value3, checkbox
 							<a href="#"><input type = "button" id = "importSettingsBtn" value = "import settings"></a>
 							<div id="import_popup" >
 								<div>
-								<select id="previewSelect" style="height:90%; width:100%;" multiple="multiple"/>
-								{% for preview in previews%}
+									<select id="previewSelect" style="height:90%; width:100%;" multiple="multiple"/>
+									{% for preview in previews%}
 									<option value="{{preview.id}}">{{preview}}</option>
-								{% endfor %}
+									{% endfor %}
 								</select>
 							</div>
-								<input type="button" id="importBtn" value="Import Settings">
-								<input type="button" id="cancelBtn" value="Cancel">
-							</div>
-							<input type = "button" id = "exportSettingsBtn" value = "export settings">
-
+							<input type="button" id="importBtn" value="Import Settings">
+							<input type="button" id="cancelBtn" value="Cancel">
 						</div>
+						<input type = "button" id = "exportSettingsBtn" value = "export settings">
+
+					</div>
+				</fieldset>
+			</div>
+			<div id = "logAndBoardAndLaunch" style = "width:20%;float:left">
+				<div id="logOutputLocationDiv" style="width:100%;float:left">
+
+					<fieldset>
+						<legend>Log Output Location</legend>
+
+						<p id = "logOutputLocationString"> no location chosen...</p>
+
+						<input type = "button" id = "logOutputLocationBtn" value = "choose">
 					</fieldset>
+
 				</div>
-				<div id = "logAndBoardAndLaunch" style = "width:20%;float:left">
-					<div id="logOutputLocationDiv" style="width:100%;float:left">
 
-						<fieldset>
-							<legend>Log Output Location</legend>
+				<div id="Board" style="width:100%;float:left;">
 
+					<fieldset>
+						<legend>Board</legend>
 
-							<p id = "logOutputLocationString"> no location chosen...</p>
+						<span id = "tilt"> Tilt:</span>
+						<br>
 
+						<span id = "default"> Default:</span>
+						<br>
 
-							<input type = "button" id = "logOutputLocationBtn" value = "choose">
-						</fieldset>
+						<input type = "button" id = "boardTiltBtn"  style = "width:100%"value = "Set Board Tilt">
 
-					</div>
+					</fieldset>
 
-
-					<div id="Board" style="width:100%;float:left;">
-
-						<fieldset>
-							<legend>Board</legend>
-
-							<span id = "tilt"> Tilt:</span>
-							<br>
-
-							<span id = "default"> Default:</span>
-							<br>
-
-							<input type = "button" id = "boardTiltBtn"  style = "width:100%"value = "Set Board Tilt">
-
-						</fieldset>
-
-					</div>
-					<div id="launch" style="width:100%;float:right;">
-
-						<input type = "button" id = "launchExperimentBtn" value = "launch Experiment">
-					</div>
 				</div>
-			</form>
-		</div>
+				<div id="launch" style="width:100%;float:right;">
+
+					<input type = "button" id = "launchExperimentBtn" value = "launch Experiment">
+				</div>
+			</div>
+		</form>
 	</div>
+</div>
 
 <script>
 //init canvas
@@ -479,23 +518,27 @@ var prevPosOfPosSlider = $("#positionSLiderLabel").val(),  prevPosOfShadeSlider 
 //Default Values
 var labelYPos = 100, labelXPos = 100;
 var textColor = "#69C"
-var font = ($("#size").val()/4+3) + "px Arial";
+var font = ($("#size1").val()/4+3) + "px Arial";
 
 var backgroundColor = "rgb(" + $("#RSliderBackground").val() + "," + $("#GSliderBackground").val() + "," + $("#BSliderBackground").val() + ")";
 
 
 
-//If you check the default label box
+/**
+ * @event function for when the user checks the default label checkbox, defualt values are reassigned
+*/
 $("#defaultLabelOutput").change(function(){
 	if(this.checked){
 		changeSize(75);
-		changeLum(100);
+		textColor = "#69C";
 		changePosition(60);
 	}
 });
 //*****************
 
-//If you check the default background box
+/**
+ * @event function for when the user checks the default background checkbox, defualt values are reassigned
+*/
 $("#defaultBackgroundCheckbox").change(function(){
 	if(this.checked){
 		backgroundColor = "rgb(0,0,0)";
@@ -504,7 +547,9 @@ $("#defaultBackgroundCheckbox").change(function(){
 });
 //*****************
 
-//if you slide the background sliders
+/**
+ * @event functions that change the background color of the experiment when a slider in engaged
+*/
 $("#RSliderBackground").change(function(){
 	changeBoardBackground();
 });
@@ -517,7 +562,9 @@ $("#BSliderBackground").change(function(){
 //******************************
 
 
-//if you slide the label sliders
+/**
+ * @event functions that change the label fieldset options of the experiment when a slider in engaged
+*/
 $("#shadeSLiderLabel").change(function(){
 	changeLum($("#shadeSLiderLabel").val());
 });
@@ -529,23 +576,45 @@ $("#sizeSLiderLabel").change(function(){
 $("#positionSLiderLabel").change(function(){
 	changePosition($("#positionSLiderLabel").val());
 });
+//*******************
 
+/**
+ * @event function that changes the position of the stimuli labels when a slider in engaged
+*/
 $('#position').change(function(){
 	reDrawCanvas();
 });
-$('#size').change(function(){
-	 font=($("#size").val()/4+3) + "px Arial";
-	 reDrawCanvas();
+
+/**
+ * @event function that changes the shading of the stimuli labels when a slider in engaged
+*/
+$('#shade').change(function(){
+	changeLum($("#shade").val());
+});
+
+/**
+ * @event function that changes the font size of the stimuli labels when a slider in engaged
+*/
+$('#size1').change(function(){
+	font=($("#size1").val()/4+3) + "px Arial";
+	reDrawCanvas();
 });
 //************************
 
+/**
+ * changes the shading of the stimuli labels when a slider in engaged, called by the shadeing  slider
+ * @param {Number} currentPosOfShadeSlider -> shade  slider value
+*/
 function changeLum(currentPosOfShadeSlider){
 	var changePosition = parseInt(currentPosOfShadeSlider) - parseInt(prevPosOfShadeSlider);
 	textColor = ColorLuminance(textColor,changePosition/100);
 	reDrawCanvas();
 	prevPosOfShadeSlider = currentPosOfShadeSlider;
 }
-
+/**
+ * changes the position of the stimuli labels when a slider in engaged, called by the position slider
+ * @param {Number} currentPosOfSlider -> position slider value
+*/
 function changePosition(currentPosOfSlider){
 	var changePosition = parseInt(currentPosOfSlider) - parseInt(prevPosOfPosSlider);
 	labelYPos+=(changePosition*-1);
@@ -553,14 +622,22 @@ function changePosition(currentPosOfSlider){
 	prevPosOfPosSlider = currentPosOfSlider;
 }
 
+/**
+ * changes the size of the stimuli labels when a slider in engaged, called by the size slider
+ * @param {Number} currentPosOfSizeSlider -> size slider value
+*/
 function changeSize(currentPosOfSizeSlider){	
-	
 	font= (currentPosOfSizeSlider/4+1) + "px Arial";
 	reDrawCanvas();
 	
 }
 
-//Takes in a color and a % to lumminate From http://www.sitepoint.com/javascript-generate-lighter-darker-color/
+/**
+ * Given an index, removes that element from an array 
+ * @param {Number} hex -> the color to shade
+ * @param {Number} lum  -> a percentage to change the color lighter or darker
+	Taken from: http://www.sitepoint.com/javascript-generate-lighter-darker-color
+*/
 function ColorLuminance(hex, lum) {
     // validate hex string
     hex = String(hex).replace(/[^0-9a-f]/gi, '');
@@ -579,13 +656,10 @@ function ColorLuminance(hex, lum) {
 }
 //*********************
 
-/*function drawText(){
-	c.textAlign = 'center';
-	c.fillStyle = textColor;
-	c.font = font;
-	c.fillText("Hello World",labelXPos,labelYPos);
-}*/
 
+/**
+ * fills in the the background of the experiment with the specified backgroundColor 
+*/
 function drawBackground(){
 	c.fillStyle = backgroundColor;
 	c.fillRect(0,0,canvas.width,canvas.height);
@@ -593,22 +667,36 @@ function drawBackground(){
 		c.drawImage(board_image,canvas.width/2-200,canvas.height/2-200,400,400);
 }
 
+/**
+ * re-assigns the background color variable and redraws the canvas  
+*/
 function changeBoardBackground(){
 	backgroundColor = "rgb(" + $("#RSliderBackground").val() + "," + $("#GSliderBackground").val() + "," + $("#BSliderBackground").val() + ")";
 	reDrawCanvas();
 }
-
+/**
+ * function that redraws the canvas to reflect anychanges made by the user
+*/
 function reDrawCanvas(){
 	c.clearRect(0,0,canvas.width,canvas.height);
 	drawBackground();
 	//drawText();
-
 	redrawStim();
 }
 var hide_background=false;
 var stim_orders=new Array();
 var current_order;
 var board_image;
+
+/**
+ * Stimuli object definition
+ @param {Number} label
+ @param {Number} peg_color
+ @param {Number} label_color
+ @param {Number} image
+ @param {Number} image_scale
+ @param {Number} is_image
+*/
 function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 	this.stim_label=label;
 	this.is_image = is_image;
@@ -617,37 +705,38 @@ function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 	this.label_color=label_color;
 	this.peg_color=peg_color;
 }
-/*Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
+/**
+Anonymous function fired on the page load. This function will instantiate all the orders with their respective stimulus attached.
 It also sets the board image if a board image exists.*/
 (function(){
 	var peg_image=new Image();
 	peg_image.src="http://localhost:80/peg.png";
 	{% if experiment.board_image %}
-		board_image=new Image();
-		board_image.src="{{experiment.board_image.url}}";
-		board_image.onload=reDrawCanvas;
+	board_image=new Image();
+	board_image.src="{{experiment.board_image.url}}";
+	board_image.onload=reDrawCanvas;
 	{% else %}
-		board_image=null;
+	board_image=null;
 	{% endif %}
 	
 	{% for order in orders %}
 	stim_orders[stim_orders.length]=new Array();
 	var image;
 	{% for order_item in order %}
-		var label="{{order_item.stimulus.label_text}}";
-		var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
-		var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
-		var image_scale="{{order_item.stimulus.image_scale}}";
-		var is_image="{{order_item.stimulus.is_peg}}";
-		
-			{% if order_item.stimulus.image %}
-				image=new Image();
-				image.src="{{order_item.stimulus.image.url}}";
-			{% else %}
-				image=peg_image;
-			{% endif %}
-			stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
-		{% endfor %}
+	var label="{{order_item.stimulus.label_text}}";
+	var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
+	var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
+	var image_scale="{{order_item.stimulus.image_scale}}";
+	var is_image="{{order_item.stimulus.is_peg}}";
+
+	{% if order_item.stimulus.image %}
+	image=new Image();
+	image.src="{{order_item.stimulus.image.url}}";
+	{% else %}
+	image=peg_image;
+	{% endif %}
+	stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
+	{% endfor %}
 	{% endfor %}
 	current_order=stim_orders[0];
 	for(var i=0;i<stim_orders.length;i++)
@@ -660,22 +749,48 @@ It also sets the board image if a board image exists.*/
 		redrawStim();
 	}
 })();
+/**
+ * redraws all the stimuli on the page to reflect changes made to them
+*/
 function redrawStim(){
 	for(var i=0;i<current_order.length;i++)
 		drawStim(current_order[i],Math.floor(i%4),Math.floor(i/4));
 }
+/**
+ * initially draws a stimuli on the page
+ @param {Stimuli} stim -> stimuli to draw
+ @param {Number} x -> x position
+ @param {Number} y -> y position
+*/
 function drawStim(stim,x,y){
 	var position=$('#position').val();
 	drawImageX(stim.stim_image, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/6));
 	drawTextX(stim.stim_label, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
 }
+
+/**
+ * function to draw  a stimuli's label
+ @param {string} text -> text to write
+ @param {Number} xPos -> x position
+ @param {Number} yPos -> y position
+  @param {Number} label_color -> color of label
+ */
 function drawTextX(text, xPos, yPos, label_color){
 	
 	c.textAlign = 'center';
-	c.fillStyle = "rgb("+label_color.red+", "+label_color.green+", "+label_color.blue+")";
+	c.fillStyle = textColor;
+	//c.fillStyle = "rgb("+label_color.red+", "+label_color.green+", "+label_color.blue+")";
 	c.font = font;
-	c.fillText(text,xPos,yPos);
+
+	if($('#labelsShow').is(':checked'))
+		c.fillText(text,xPos,yPos);
 }
+/**
+ * function to draw all the stimuli images, default or custom
+ @param {image} image -> image to draw
+ @param {Number} xPos -> x position
+ @param {Number} yPos -> y position
+*/
 function drawImageX(image,xPos, yPos){
 	if(image){
 		if(image.src=="http://localhost:80/peg.png")
@@ -683,7 +798,7 @@ function drawImageX(image,xPos, yPos){
 		else
 			c.drawImage(image,xPos-30,yPos-30,60,60);
 	}
-		
+
 }
 </script>
 

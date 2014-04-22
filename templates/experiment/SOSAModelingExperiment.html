@@ -8,9 +8,15 @@
 	<script>
 
 	$(document).ready(function(){
+		/**
+ 		* @event yet to be implemented for 3D, function to revert the camera back to the default position
+		*/
 		$( "#revertCamBtn" ).click(function() {
 
 		});
+		/**
+ 		* @event listener used to end the experiment
+		*/
 		$( "#finishTestBtn" ).click(function() {
 			onFinish();
 		});
@@ -48,13 +54,16 @@ var pegMoves = [];//array that holds the info for each peg movement
 
 var canvas = $('canvas').get(0).getContext("2d");
 var mouseDown = false;
-//html5 canvas jank
+//html5 canvas
 var FPS = 30;
 setInterval(function() {
   update();
   draw();
 }, 1000/FPS);
 
+/**
+ * function used to update the positions of the stimuli as the user drags them across the board
+*/
 function update() {
 	canvas.fillStyle = "#" + "{{preview.background_color.red}}".toString(16) + "{{preview.background_color.green}}".toString(16) + "{{preview.background_color.blue}}".toString(16);
 	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
@@ -62,6 +71,10 @@ function update() {
 		canvas.drawImage(imageObj, 100, 100, {{experiment.window_x}}-200, {{experiment.window_y}}-200);
 	}
  }
+
+ /**
+ * function used to draw the stimuli to the screen as the user moves them
+*/
 function draw() { 
 	
 	for(var i = 0; i < pegs.length; i++){
@@ -82,6 +95,10 @@ function draw() {
 	
 }
 
+ /**
+ * @event function used to detect that a user has clicked on a stimuli and wants to move it
+*/
+
 $('canvas')[0].addEventListener("mousedown", function(evt) {
 	mouseDown = true;
 	 var mousePos = getMousePos(canvas, evt);
@@ -96,6 +113,9 @@ $('canvas')[0].addEventListener("mousedown", function(evt) {
 
       }, false);
 
+ /**
+ * @event function used to detect that a user is finished moving a stimuli
+*/
 $('canvas')[0].addEventListener("mouseup", function(evt) {
 	mouseDown = false;
 	if(pegMoved)
@@ -104,6 +124,9 @@ $('canvas')[0].addEventListener("mouseup", function(evt) {
 	pegMoved = false;
     }, false);
 
+ /**
+ * @event function used to update the position of the stimuli as the user drags them across the screen
+*/
 $('canvas')[0].addEventListener("mousemove", function(evt) {
         var mousePos = getMousePos(canvas, evt);
 
@@ -135,13 +158,18 @@ var peg_image = new Image();
 peg_image.src="{{MEDIA_URL}}peg.png";
 
 
-/*******Objects*////////
-/*Position*/
+/**Objects*/
+/**
+Position object
+ @param {Number} x 
+ @param {Number} y
+ */
 function position(x,y){
 this.x = x;
 this.y = y;
 }
-//**Peg object
+/**
+Peg object*/
 function peg(){
 	this.ID = arguments[0];
 	this.prevPosition = new position(0,0);
@@ -154,7 +182,13 @@ function peg(){
 	this.image=arguments[5];
 }
 
-//**PegMove object
+/**PegMove object
+@param {Number} ID 
+ @param {String} label 
+ @param {Number} timeMoved 
+ @param {Number} currentPosition
+ @param {Number} prevPosition
+ */
 function pegMove(ID, label, timeMoved, currentPosition, prevPosition){
 this.ID = ID;
 this.label = label;
@@ -166,8 +200,19 @@ console.log(this.currentPosition.y / {{experiment.window_y}} * -24 + 12);
 /***************************/
 
 
-/***functions To call*/
-
+/**
+ * function used to add a peg to the pegs array
+ @param {Number} id 
+ @param {String} label 
+ @param {Number} size
+ @param {Number} peg_red
+ @param {Number} peg_green       
+ @param {Number} peg_blue
+ @param {Number} label_red
+ @param {Number} label_green
+ @param {Number} label_blue  
+ @param {Image} image 
+*/
 function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue,image){
 	/*prevent multiple instances of the same peg from being instantiated*/
 	for(var i=0;i<pegs.length;i++){
@@ -185,19 +230,25 @@ function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_
 		pegs.push(new peg(id, label, size, peg_color, label_color,null));
 	}
 }
-//**Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))***//
+
+/**
+Function to Call to update peg loaction when moved and save the peg's movement(PegID, position(x,y))
+*/
 function onPegMoved(){
 	//passing in currentTime, index,
 	pegMoves.push(new pegMove(index, pegs[index].label, formatDate(new Date()), pegs[index].position, pegs[index].prevPosition));
-
 }
-//**Call once when the experiment starts(number of pegs in the experiment)**//
+
+/**
+Call once when the experiment starts(number of pegs in the experiment)
+*/
 function onStart(){
-
 startTime = new Date();
-
 }
-//*****call once when the experiment is finished returns a js object with alot of data
+
+/**
+call once when the experiment is finished returns a js object with alot of data
+*/
 function onFinish(){
 var endTime = new Date();
 
@@ -230,6 +281,10 @@ finalData.prevStartTime = '{{startTime}}';
 
 }
 
+/**
+ * returns all the positions of each stimuli during the course of the experiment
+ * @return {array} pegMoves -> all of the moves of each stimuli
+ */
 function getpegMoves(){
 	for(var i = 0; i < pegMoves.length; i++){
 		pegMoves[i].currentPosition = new position(pegMoves[i].currentPosition.x/ {{experiment.window_x}} * 24 - 12, pegMoves[i].currentPosition.y / {{experiment.window_y}} * -24 +12);
@@ -239,7 +294,10 @@ function getpegMoves(){
 	return pegMoves;
 }
 
-/***************************************/
+/**
+returns the order of the pegs moved
+* @return {array} order -> order of the pegs
+*/
 function getPegOrder(){
 	var order = new Array(pegs.length);
 	for(var i = 0; i < pegs.length; i++)
@@ -247,6 +305,11 @@ function getPegOrder(){
 
 	return order;
 }
+
+/**
+function to find the distances between each stimuli on the board
+* @return {array} distances -> distances of the pegs from one another
+*/
 function findDistances(){
 
 /*two dimentional distances array*/
@@ -270,12 +333,22 @@ for(var i = 0; i<pegs.length; i++){
 return distances;
 }
 
+/**
+stores the final position of each stimuli
+* @param {Number} id
+* @param {String} label
+* @param {Position} position
+*/
 function finalpos(id, label, pos){
 	this.id = id
 	this.label = label;
 	this.pos = pos;
 }
 
+/**
+returns the final position of all the stimuli
+* @return {array} fp -> final positions
+*/
 function getFinalPositions(){
 var lastPos;
 var finalPositions = new Array(pegs.length);
@@ -291,12 +364,18 @@ return fp;
 
 }
 
+/**
+converst pixels to inches
+*/
 function toInches(){
 	for(var i = 0; i <pegs.length; i++){
 		pegs[i].position = new position(pegs[i].position.x / {{experiment.window_x}} * 24 - 12, pegs[i].position.y / {{experiment.window_y}} * -24 +12);
 	}
 }
 
+/**
+formats the date to match the current date format used in the SOSA CSV files hours:minutes:seconds am/pm
+*/
 function formatDate(d){
 var hours = d.getHours();
 var ampm = hours >= 12 ? "pm" : "am";
@@ -313,6 +392,12 @@ return formatedDate;
 
 }
 
+/**
+returns the current mouse position
+@param{canvas} canvas
+@param{event} evt
+@return{position} pos
+*/
 function getMousePos(canvas, evt) {
 var rect = $('canvas').get(0).getBoundingClientRect();
 return {
