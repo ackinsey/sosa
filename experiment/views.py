@@ -131,7 +131,7 @@ def save_settings(request):
 		bg_color=Color(red=backgroundColor['red'],green=backgroundColor['green'],blue=backgroundColor['blue'])
 		bg_color.save()
 
-		preview=Preview(hide_background=finalData['hide_background'], name=finalData['preview_name'], board_color= bd_color,background_color=bg_color,show_label=finalData['show_labels'],position=finalData['position'],shade=finalData['shade'],size=finalData['size'])
+		preview=Preview(experiment=Experiment.objects.get(id=finalData['experiment_id']),hide_background=finalData['hide_background'], name=finalData['preview_name'], board_color= bd_color,background_color=bg_color,show_label=finalData['show_labels'],position=finalData['position'],shade=finalData['shade'],size=finalData['size'])
 		preview.save()
 	response=HttpResponse()
 	return response

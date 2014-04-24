@@ -74,6 +74,7 @@
  	var finalData = new Object();
  	finalData.preview_name=name;
  	finalData.hide_background=hide_background;
+ 	finalData.experiment_id="{{request.GET.experiment_id}}";
 
  	finalData.background_color=new Object();
  	finalData.background_color.red=$("#RSliderBackground").val();
