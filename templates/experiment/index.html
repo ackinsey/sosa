@@ -80,4 +80,10 @@
 					alert("You must select an experiment before you can start!");		
 			});
 		</script>
+
+{% if results_id %}
+	<script>
+		window.location.replace("/view_results/"+{{results_id}} + "/");
+	</script>
+{% endif %}
 {% endblock %}

@@ -261,7 +261,7 @@ finalData.startTime = formatDate(startTime);
 finalData.endTime = formatDate(endTime);
 finalData.pegMoves = getpegMoves();
 finalData.distances = findDistances();
-finalData.finalPositions = getFinalPositions();//x
+finalData.finalPositions = getFinalPositions();
 finalData.pegOrder = getPegOrder();
 finalData.subjectID = '{{subjectID}}';
 finalData.prevStartTime = '{{startTime}}';
@@ -275,7 +275,7 @@ finalData.prevStartTime = '{{startTime}}';
 			csrfmiddlewaretoken: '{{ csrf_token }}',
 		},
 		complete : function(data) {
-			window.location.replace("/");
+			window.location.replace("/finish/");
 		}
 	});
 

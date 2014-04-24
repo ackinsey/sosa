@@ -1,4 +1,4 @@
-from django.shortcuts import render, render_to_response,  HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect,render_to_response,  HttpResponse, HttpResponseRedirect
 from experiment.models import Stimulus, Color, Experiment, Order, OrderItem, Results, Preview
 from json import dumps, loads, JSONEncoder
 from django.core.serializers import serialize
@@ -176,11 +176,17 @@ def run(request, id, startTime, subjectID=None):
 
 def finish(request):     
 	"""This view is called when the user completes the experiment. It creates the Results model so the data can later be exported."""
-	dict = eval(request.POST['finalData'])
-	results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['prevStartTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
-	results.save()
+	
+	try:
+		dict = eval(request.POST['finalData'])
+		results = Results(experiment=Experiment.objects.get(id=dict['experiment_id']),preview_start_time=dict['prevStartTime'],experiment_start_time=dict['startTime'],experiment_end_time=dict['endTime'],actions=dict['pegMoves'],final_positions=dict['finalPositions'], distances=dict['distances'],subject_id=dict['subjectID'], order=dict['pegOrder'])
+		results.save()
+	except:
+		pass
+	
 	return render(request, 'experiment/index.html', {
-		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment')
+		"stimulus":Stimulus.objects.values('label_text','experiment__name','experiment').order_by('experiment'),
+		"results_id":Results.objects.all().order_by('-experiment_end_time')[0].id,
     })
 
 
@@ -216,10 +222,9 @@ def about(request):
 	"""Simple static about page for the SOSA project. Hopefully will be helpful when viewed locally on a VM without an Internet connection."""
 	return render(request, 'experiment/about.html', {})
 
-def view_results(request):
+def view_results(request, id):
 	"""This view creates and initializes the download of the csv file associated with the completed experiment."""
-	results=Results.objects.all()[0]
-
+	results=Results.objects.get(id=id)
 	response = HttpResponse(content_type='text/csv')
 	response['Content-Disposition'] = 'attachment; filename="'+results.experiment.name+'.csv"'
 	writer = csv.writer(response)

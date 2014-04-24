@@ -16,7 +16,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'sosa',
         'USER':'mydb_user',
-	'PASSWORD': 'ksb@gsu'
+	'PASSWORD': 'password'
 
     }
 }
@@ -46,7 +46,7 @@ USE_I18N = True
 USE_L10N = True
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
@@ -101,6 +101,16 @@ WSGI_APPLICATION = 'wsgi.application'
 
 TEMPLATE_DIRS = (
     "/data/sosa/templates"
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+
+    'django.core.context_processors.request',
+
+    'django.contrib.auth.context_processors.auth',
+
+    'django.core.context_processors.media',
+
 )
 
 INSTALLED_APPS = (
