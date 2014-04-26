@@ -55,7 +55,7 @@ var pegMoves = [];//array that holds the info for each peg movement
 var canvas = $('canvas').get(0).getContext("2d");
 var mouseDown = false;
 //html5 canvas
-var FPS = 30;
+var FPS = 60;
 setInterval(function() {
   update();
   draw();
@@ -65,7 +65,7 @@ setInterval(function() {
  * function used to update the positions of the stimuli as the user drags them across the board
 */
 function update() {
-	canvas.fillStyle = "#" + "{{preview.background_color.red}}".toString(16) + "{{preview.background_color.green}}".toString(16) + "{{preview.background_color.blue}}".toString(16);
+	canvas.fillStyle = rgbToHex({{preview.background_color.red}}, {{preview.background_color.green}}, {{preview.background_color.blue}});
 	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
 	if(imageObj.src != ""){
 		canvas.drawImage(imageObj, 100, 100, {{experiment.window_x}}-200, {{experiment.window_y}}-200);
@@ -176,9 +176,8 @@ function peg(){
 	this.position = new position(50,50);
 	this.label = arguments[1];
 	this.size = (arguments[2] == "")? arguments[2].parseInt() : 50;
-	this.peg_color = "#" + arguments[3];
-	alert(this.peg_color);
-	this.label_color = "#" + arguments[4];
+	this.peg_color = arguments[3];
+	this.label_color = arguments[4];
 	//todo
 	this.image=arguments[5];
 }
@@ -220,8 +219,8 @@ function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_
 		if(pegs[i].ID==id)
 			return;
 	}
-	var peg_color = peg_red.toString(16) + peg_green.toString(16) + peg_blue.toString(16);
-	var label_color = label_red.toString(16) + label_green.toString(16) + label_blue.toString(16);
+	var peg_color = rgbToHex(peg_red.toString(16),peg_green.toString(16),peg_blue.toString(16));
+	var label_color = rgbToHex(label_red.toString(16),label_green.toString(16), label_blue.toString(16));
 	if(image.length>0){
 		var img=new Image();
 		img.src=image;
@@ -432,6 +431,15 @@ function ColorLuminance(hex, lum) {
     return rgb;
 }
 //*********************
+
+function toHex(c){
+	var hex = c.toString(16);
+	return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b){
+	return "#" + toHex(r) + toHex(g) + toHex(b);
+}
 </script>
 
 
