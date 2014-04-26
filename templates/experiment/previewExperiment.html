@@ -608,6 +608,7 @@ $('#size1').change(function(){
 */
 function changeLum(currentPosOfShadeSlider){
 	var changePosition = parseInt(currentPosOfShadeSlider) - parseInt(prevPosOfShadeSlider);
+	console.log(textColor, changePosition);
 	textColor = ColorLuminance(textColor,changePosition/100);
 	reDrawCanvas();
 	prevPosOfShadeSlider = currentPosOfShadeSlider;

@@ -163,7 +163,7 @@ def run(request, id, startTime, subjectID=None):
 	"""This is the view fired off when the experiment is started. It returns the data required to run an experiment."""
 	experiment=Experiment.objects.get(id=id)
 	#were just going to grab the last one here.
-	preview = Preview.objects.filter(experiment=experiment).order_by('id')[0]
+	preview = Preview.objects.filter(experiment=experiment).order_by('-id')[0]
 	stimuli=Stimulus.objects.filter(experiment=experiment)
 	return render(request, 'experiment/SOSAModelingExperiment.html', {
 		"preview":preview,
