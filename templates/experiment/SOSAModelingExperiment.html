@@ -86,7 +86,7 @@ function draw() {
 		else{
 			canvas.drawImage(peg_image, pegs[i].position.x - ( peg_image.width/4), pegs[i].position.y - ( peg_image.height/4), peg_image.width/2, peg_image.height/2);
 		}
-		canvas.fillStyle = ColorLuminance(pegs[i].label_color, {{preview.shade}} / -100);
+		canvas.fillStyle = ColorLuminance(pegs[i].label_color, ({{preview.shade}} - 100)/100);
 		if("{{preview.show_label}}"=="True"){
 			var x=(canvas.measureText(pegs[i].label).width/2);
 			canvas.fillText(pegs[i].label, pegs[i].position.x - x, pegs[i].position.y - 50 + ((100-{{preview.position}}) / 3));
