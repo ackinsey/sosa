@@ -67,7 +67,8 @@ setInterval(function() {
 function update() {
 	canvas.fillStyle = rgbToHex({{preview.background_color.red}}, {{preview.background_color.green}}, {{preview.background_color.blue}});
 	canvas.fillRect(0, 0, {{experiment.window_x}}, {{experiment.window_y}});
-	if(imageObj.src != ""){
+
+	if(imageObj.src != ""&&"{{preview.hide_background}}"!="True"){
 		canvas.drawImage(imageObj, 100, 100, {{experiment.window_x}}-200, {{experiment.window_y}}-200);
 	}
  }
