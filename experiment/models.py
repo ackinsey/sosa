@@ -90,6 +90,7 @@ class Preview(models.Model):
 	shade=models.IntegerField()
 	size=models.IntegerField()
 	hide_background=models.BooleanField(default=False)
+	exported=models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return u'%s' % (self.name)

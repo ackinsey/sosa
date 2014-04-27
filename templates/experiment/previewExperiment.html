@@ -111,6 +111,7 @@ $('#importBtn').click(function(){
 	if($('#previewSelect').val()){
 		loadSettings($('#previewSelect').val()[0]);
 		hidePopup();
+		
 	}else
 	alert("You must select a setting before you can import it!");
 });
@@ -139,6 +140,7 @@ function hidePopup(){
  */
 function loadSettings(previewIndex){
 	{% for preview in previews %}
+
 	if(previewIndex.toString()=={{preview.id}})
 	{
 		$('#RSliderBoard').val("{{preview.board_color.red}}");
@@ -149,15 +151,31 @@ function loadSettings(previewIndex){
 		$('#BSliderBackground').val("{{preview.background_color.blue}}");
 		$('#GSliderBackground').val("{{preview.background_color.green}}");
 
+
+		$('#RSliderBoardOutput').val("{{preview.board_color.red}}");
+		$('#BSliderBoardOutput').val("{{preview.board_color.blue}}");
+		$('#GSliderBoardOutput').val("{{preview.board_color.green}}");
+
+		$('#RSliderBackgroundOutput').val("{{preview.background_color.red}}");
+		$('#BSliderBackgroundOutput').val("{{preview.background_color.blue}}");
+		$('#GSliderBackgroundOutput').val("{{preview.background_color.green}}");
+
 		$('#shade').val("{{preview.shade}}");
 		$('#size1').val("{{preview.size}}");
 		$('#position').val("{{preview.position}}");
 
 		{% if preview.show_label %}
-		$('#labelsShow').prop('checked',true);
+			$('#labelsShow').prop('checked',true);
 		{% else %}
-		$('#labelsShow').prop('checked',false);
+			$('#labelsShow').prop('checked',false);
 		{% endif %}
+		{% if preview.hide_background %}
+			hide_background=true;
+		{% else %}
+			hide_background=false;
+		{% endif %}
+		changeBoardBackground();
+		reDrawCanvas();
 	}
 	{% endfor %}
 }
@@ -176,7 +194,7 @@ $(document).ready(function(){
 				$("#GSliderBoard").val(255);
 				$("#GSliderBoardOutput").val(255);
 				$("#BSliderBoard").val(255);
-				$("BSliderBoardOutput").val(255);
+				$("#BSliderBoardOutput").val(255);
 			}
 			else if($(this).attr('name') == "defaultBackgroundCheckbox"){
 				$("#RSliderBackground").val(0);
@@ -207,6 +225,7 @@ $(document).ready(function(){
 			else if($(this).attr('name') == "defaultLabelOutput")
 				checkIfDefault($("#positionSLiderLabel"), $("#shadeSLiderLabel"), $("#sizeSLiderLabel"), 60, 100, 75, $('#defaultLabelOutput'));
 		}
+		reDrawCanvas();
 	});
 /********************************************************************************************************/
 /**
@@ -254,6 +273,8 @@ $(document).ready(function(){
 
 
 });
+
+
 /*****************************************************************************************************************************/
 
 /**
@@ -607,12 +628,38 @@ $('#size1').change(function(){
  * @param {Number} currentPosOfShadeSlider -> shade  slider value
 */
 function changeLum(currentPosOfShadeSlider){
-	var changePosition = parseInt(currentPosOfShadeSlider) - parseInt(prevPosOfShadeSlider);
-	console.log(textColor, changePosition);
-	textColor = ColorLuminance(textColor,changePosition/100);
+	//If the slider is moved to fast it will distort the text color. Use MAX_COLOR_CHANGE to circumvent this issue.
+	var MAX_COLOR_CHANGE=2000000;
+	var changePosition = Math.abs(parseInt(currentPosOfShadeSlider) );//- parseInt(prevPosOfShadeSlider))>MAX_COLOR_CHANGE?MAX_COLOR_CHANGE:parseInt(currentPosOfShadeSlider) - parseInt(prevPosOfShadeSlider);
+	for(var i=0;i<current_order.length;i++){
+		var color=current_order[i].label_color;
+		//current_order[i].canvas_label_color = hexToRgb(ColorLuminance(rgbToHex(color.red,color.green,color.blue),.001));
+	}
 	reDrawCanvas();
 	prevPosOfShadeSlider = currentPosOfShadeSlider;
 }
+
+/*http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb*/
+function toHex(c){
+	var hex = c.toString(16);
+	return hex.length == 1 ? "0" + hex : hex;
+}
+
+/*http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb*/
+function rgbToHex(r, g, b){
+	return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+
+/*http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb*/
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        red: parseInt(result[1], 16),
+        green: parseInt(result[2], 16),
+        blue: parseInt(result[3], 16)
+    } : null;
+}
+
 /**
  * changes the position of the stimuli labels when a slider in engaged, called by the position slider
  * @param {Number} currentPosOfSlider -> position slider value
@@ -682,7 +729,6 @@ function changeBoardBackground(){
 function reDrawCanvas(){
 	c.clearRect(0,0,canvas.width,canvas.height);
 	drawBackground();
-	//drawText();
 	redrawStim();
 }
 var hide_background=false;
@@ -705,6 +751,8 @@ function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 	this.stim_image=image;
 	this.image_scale=image_scale;
 	this.label_color=label_color;
+	//used to draw the canvas in different shades while still retaining the original color
+	this.canvas_label_color=label_color;
 	this.peg_color=peg_color;
 }
 /**
@@ -724,6 +772,7 @@ It also sets the board image if a board image exists.*/
 	{% for order in orders %}
 	stim_orders[stim_orders.length]=new Array();
 	var image;
+	var stimulus_images=new Array();
 	{% for order_item in order %}
 	var label="{{order_item.stimulus.label_text}}";
 	var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
@@ -732,12 +781,13 @@ It also sets the board image if a board image exists.*/
 	var is_image="{{order_item.stimulus.is_peg}}";
 
 	{% if order_item.stimulus.image %}
-	image=new Image();
-	image.src="{{order_item.stimulus.image.url}}";
+	stimulus_images.push(new Image());
+	current_index=stimulus_images.length-1;
+	stimulus_images[current_index].src="{{order_item.stimulus.image.url}}";
 	{% else %}
-	image=peg_image;
+	stimulus_images[current_index]=peg_image;
 	{% endif %}
-	stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
+	stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,stimulus_images[current_index],image_scale,is_image);
 	{% endfor %}
 	{% endfor %}
 	current_order=stim_orders[0];
@@ -746,7 +796,7 @@ It also sets the board image if a board image exists.*/
 	for(var i=0;i<current_order.length;i++){
 		$('#stimuliSelect').append("<option>"+current_order[i].stim_label+"</option>");
 	}
-	image.onload=function(){
+	stimulus_images[current_index].onload=function(){
 		reDrawCanvas();
 		redrawStim();
 	}
@@ -779,14 +829,18 @@ function drawStim(stim,x,y){
  */
 function drawTextX(text, xPos, yPos, label_color){
 	
+		c.fillStyle = ColorLuminance(colorToHex(label_color.red,label_color.green,label_color.blue), ($('#shade').val()- 100)/100.0);
 	c.textAlign = 'center';
-	c.fillStyle = textColor;
-	//c.fillStyle = "rgb("+label_color.red+", "+label_color.green+", "+label_color.blue+")";
 	c.font = font;
-
 	if($('#labelsShow').is(':checked'))
 		c.fillText(text,xPos,yPos);
 }
+
+/*http://haacked.com/archive/2009/12/29/convert-rgb-to-hex.aspx/*/
+function colorToHex(red,green,blue) {
+    var rgb = blue | (green << 8) | (red << 16);
+    return '#' + rgb.toString(16);
+};
 /**
  * function to draw all the stimuli images, default or custom
  @param {image} image -> image to draw

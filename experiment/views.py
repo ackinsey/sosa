@@ -100,6 +100,8 @@ def load(request):
 		p.show_label=True if request.POST['show_label']=='true' else False
 		p.size=request.POST['size']
 
+		p.exported=False
+
 		p.experiment=Experiment.objects.get(id=request.GET['experiment_id'])
 		p.save()
 		return render(request, 'experiment/prompt.html', {
@@ -115,7 +117,7 @@ def load(request):
 	return render(request, 'experiment/previewExperiment.html', {
 		"orders":stim_orders,
 		"experiment":experiment,
-		"previews":Preview.objects.all()
+		"previews":Preview.objects.filter(exported=True),
 	    })
 
 def save_settings(request):
@@ -131,7 +133,7 @@ def save_settings(request):
 		bg_color=Color(red=backgroundColor['red'],green=backgroundColor['green'],blue=backgroundColor['blue'])
 		bg_color.save()
 
-		preview=Preview(experiment=Experiment.objects.get(id=finalData['experiment_id']),hide_background=finalData['hide_background'], name=finalData['preview_name'], board_color= bd_color,background_color=bg_color,show_label=finalData['show_labels'],position=finalData['position'],shade=finalData['shade'],size=finalData['size'])
+		preview=Preview(experiment=Experiment.objects.get(id=finalData['experiment_id']),exported=True, hide_background=finalData['hide_background'], name=finalData['preview_name'], board_color= bd_color,background_color=bg_color,show_label=finalData['show_labels'],position=finalData['position'],shade=finalData['shade'],size=finalData['size'])
 		preview.save()
 	response=HttpResponse()
 	return response

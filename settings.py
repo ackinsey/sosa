@@ -16,8 +16,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME':'sosa',
         'USER':'mydb_user',
-	'PASSWORD': 'ksb@gsu'
-
+        'PASSWORD':'your_password',
     }
 }
 
