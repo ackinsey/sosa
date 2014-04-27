@@ -423,6 +423,10 @@
 				$('input:radio[name=Type]').filter('[value=image]').prop('checked', true);
 			reDrawCanvas();
 			stim_image.src=selected_stimulus.image_data;
+
+			$('.color_slider').each(function(i, obj) {
+			    $("#"+obj.id+"_output").val($(this).val());
+			});
 		}
 
 		/**
@@ -592,7 +596,6 @@
 				$('#label_slider_default').attr("checked",false);
 			else if(slider_type.indexOf("peg")!=-1)
 				$('#peg_slider_default').attr("checked",false);
-			
 			updateStimulusData();
 		});
 

@@ -37,7 +37,7 @@ def create(request):
 			text = json_peg.get('stim_label', 'not found')
 			text = text.replace(' ', '_')
 			stimulus=Stimulus(experiment=experiment,form_id=json_peg.get('stim_index', 'not found'),label_text=text,
-				processingID=json_peg.get('processing_id', 'not found'),
+				processingID=json_peg.get('processing_id', 'not found'), image_size=json_peg.get('image_scale', 'not found'), 
 				is_peg=json_peg.get('stim_type', 'not found'))
 			
 			#define a color object and set it to the peg	
@@ -58,6 +58,7 @@ def create(request):
 			stimulus.experiment=experiment
 			if 'stimulus_image_'+str(index) in request.FILES:
 				stimulus.image=request.FILES['stimulus_image_'+str(index)]
+
 			stimulus.save()
 		for index,json_order in enumerate(order_data):
 			order = Order(experiment=experiment,name="Order "+str(index+1))
