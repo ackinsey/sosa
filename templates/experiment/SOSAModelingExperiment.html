@@ -34,7 +34,7 @@
 			
 				{% for stimuli in stimuliList %}
 				<option id = "{{stimuli.label_text}}" onclick="addPeg({{stimuli.form_id}},'{{stimuli.label_text}}', '{{stimuli.peg_size}}', {{stimuli.peg_color.red}}, {{stimuli.peg_color.green}}, {{stimuli.peg_color.blue}}, {{stimuli.label_color.red}}, {{stimuli.label_color.green}}, {{stimuli.label_color.blue}},
-					{% if stimuli.image %}'{{stimuli.image.url}}'{% else %}''{% endif %});">{{stimuli.label_text}}</option>
+					{% if stimuli.image %}'{{stimuli.image.url}}'{% else %}''{% endif %},{{stimuli.image_size}});">{{stimuli.label_text}}</option>
 				{% endfor %}
 				
 			</select>
@@ -82,7 +82,8 @@ function draw() {
 		canvas.fillStyle = pegs[i].peg_color;
 		canvas.font=({{preview.size}}/4+3)+"px Georgia";
 		if(pegs[i].image){
-			canvas.drawImage(pegs[i].image, pegs[i].position.x - 25, pegs[i].position.y - 25, pegs[i].size, pegs[i].size);
+			var scaler=pegs[i].image_scale;
+			canvas.drawImage(pegs[i].image, pegs[i].position.x - (25*scaler/2), pegs[i].position.y - (25*scaler/2), pegs[i].size*scaler/2, pegs[i].size*scaler/2);
 		}
 		else{
 			canvas.drawImage(peg_image, pegs[i].position.x - ( peg_image.width/4), pegs[i].position.y - ( peg_image.height/4), peg_image.width/2, peg_image.height/2);
@@ -104,8 +105,8 @@ $('canvas')[0].addEventListener("mousedown", function(evt) {
 	mouseDown = true;
 	 var mousePos = getMousePos(canvas, evt);
 	for(var i = 0; i < pegs.length; i++){
-		if(mousePos.x <= pegs[i].position.x + 25 && mousePos.x >= pegs[i].position.x - 25){//nested for readability
-			if(mousePos.y <= pegs[i].position.y + 25 && mousePos.y >= pegs[i].position.y - 25){
+		if(mousePos.x <= pegs[i].position.x + (25*pegs[i].image_scale/2) && mousePos.x >= pegs[i].position.x - (25*pegs[i].image_scale/2)){//nested for readability
+			if(mousePos.y <= pegs[i].position.y + (25*pegs[i].image_scale/2) && mousePos.y >= pegs[i].position.y - (25*pegs[i].image_scale/2)){
 				pegs[i].prevPosition.x = mousePos.x;
 				pegs[i].prevPosition.y = mousePos.y;
 			}
@@ -133,8 +134,8 @@ $('canvas')[0].addEventListener("mousemove", function(evt) {
 
         if(mouseDown){
         for(var i = 0; i < pegs.length; i++){
-			if(mousePos.x <= pegs[i].position.x + 25 && mousePos.x >= pegs[i].position.x - 25){//nested for readability
-				if(mousePos.y <= pegs[i].position.y + 25 && mousePos.y >= pegs[i].position.y - 25){
+			if(mousePos.x <= pegs[i].position.x + (25*pegs[i].image_scale/2) && mousePos.x >= pegs[i].position.x - (25*pegs[i].image_scale/2)){//nested for readability
+				if(mousePos.y <= pegs[i].position.y + (25*pegs[i].image_scale/2) && mousePos.y >= pegs[i].position.y - (25*pegs[i].image_scale/2)){
 					index = i;
 					pegs[i].position.x = mousePos.x;
 					pegs[i].position.y = mousePos.y;
@@ -181,6 +182,7 @@ function peg(){
 	this.label_color = arguments[4];
 	//todo
 	this.image=arguments[5];
+	this.image_scale=arguments[6];
 }
 
 /**PegMove object
@@ -213,7 +215,7 @@ this.previousPosition = prevPosition;
  @param {Number} label_blue  
  @param {Image} image 
 */
-function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue,image){
+function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_green, label_blue,image,image_size){
 	/*prevent multiple instances of the same peg from being instantiated*/
 	for(var i=0;i<pegs.length;i++){
 		if(pegs[i].ID==id)
@@ -224,10 +226,10 @@ function addPeg(id, label, size, peg_red, peg_green, peg_blue, label_red, label_
 	if(image.length>0){
 		var img=new Image();
 		img.src=image;
-		pegs.push(new peg(id, label, size, peg_color, label_color,img));
+		pegs.push(new peg(id, label, size, peg_color, label_color,img,image_size));
 	}
 	else{
-		pegs.push(new peg(id, label, size, peg_color, label_color,null));
+		pegs.push(new peg(id, label, size, peg_color, label_color,null,image_size));
 	}
 }
 

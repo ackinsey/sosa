@@ -777,9 +777,8 @@ It also sets the board image if a board image exists.*/
 	var label="{{order_item.stimulus.label_text}}";
 	var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
 	var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
-	var image_scale="{{order_item.stimulus.image_scale}}";
+	var image_scale="{{order_item.stimulus.image_size}}";
 	var is_image="{{order_item.stimulus.is_peg}}";
-
 	{% if order_item.stimulus.image %}
 	stimulus_images.push(new Image());
 	current_index=stimulus_images.length-1;
@@ -816,7 +815,7 @@ function redrawStim(){
 */
 function drawStim(stim,x,y){
 	var position=$('#position').val();
-	drawImageX(stim.stim_image, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/6));
+	drawImageX(stim.stim_image, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/6),stim.image_scale);
 	drawTextX(stim.stim_label, x*(canvas.width/4)+(canvas.width/8),y*(canvas.height/3)+(canvas.height/16)-(position/4-12),stim.label_color);
 }
 
@@ -847,12 +846,13 @@ function colorToHex(red,green,blue) {
  @param {Number} xPos -> x position
  @param {Number} yPos -> y position
 */
-function drawImageX(image,xPos, yPos){
+function drawImageX(image,xPos, yPos,scaler){
 	if(image){
 		if(image.src=="http://localhost:80/peg.png")
 			c.drawImage(image,xPos-(image.width/4),yPos-(image.height/4),image.width/2,image.height/2);
-		else
-			c.drawImage(image,xPos-30,yPos-30,60,60);
+		else{
+			c.drawImage(image,xPos-(30*scaler/2),yPos-(30*scaler/2),(60*scaler/2),(60*scaler/2));
+		}
 	}
 
 }

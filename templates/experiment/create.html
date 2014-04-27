@@ -275,7 +275,8 @@
 			if(img_file.val()<=0){		
 				c.drawImage(peg_image,canvas.width/4-(peg_image.width/2),canvas.height/2-(peg_image.height/2),peg_image.width,peg_image.height);
 			}else{
-				c.drawImage(stim_image,canvas.width/4-50,canvas.height/2-50,100,100);
+				var scaler=selected_stimulus.image_scale/2.0;
+				c.drawImage(stim_image,canvas.width/4-(50*scaler/2),canvas.height/2-(50*scaler/2),(100*scaler/2),(100*scaler/2));
 			}
 				var x=(canvas.width/4) -(c.measureText(label).width/2);
 				c.fillText(label,canvas.width/4,canvas.height/4);
@@ -424,6 +425,8 @@
 			reDrawCanvas();
 			stim_image.src=selected_stimulus.image_data;
 
+			$('#size_type_output').val($('#size_type').val());
+
 			$('.color_slider').each(function(i, obj) {
 			    $("#"+obj.id+"_output").val($(this).val());
 			});
@@ -493,6 +496,7 @@
 		*/
 		$("#size_type").change(function(event){
 			selected_stimulus.image_scale=$(this).val();
+			reDrawCanvas();
 		});
 
 		/**
