@@ -738,12 +738,12 @@ var board_image;
 
 /**
  * Stimuli object definition
- @param {Number} label
- @param {Number} peg_color
- @param {Number} label_color
- @param {Number} image
+ @param {string} label
+ @param {string} peg_color
+ @param {string} label_color
+ @param {image} image
  @param {Number} image_scale
- @param {Number} is_image
+ @param {boolean} is_image
 */
 function Stimulus(label, peg_color, label_color, image, image_scale, is_image) {
 	this.stim_label=label;
@@ -772,21 +772,20 @@ It also sets the board image if a board image exists.*/
 	{% for order in orders %}
 	stim_orders[stim_orders.length]=new Array();
 	var image;
-	var stimulus_images=new Array();
 	{% for order_item in order %}
 	var label="{{order_item.stimulus.label_text}}";
 	var peg_color={red:"{{order_item.stimulus.peg_color.red}}",green:"{{order_item.stimulus.peg_color.green}}",blue:"{{order_item.stimulus.peg_color.blue}}"};
 	var label_color={red:"{{order_item.stimulus.label_color.red}}",green:"{{order_item.stimulus.label_color.green}}",blue:"{{order_item.stimulus.label_color.blue}}"};
 	var image_scale="{{order_item.stimulus.image_size}}";
 	var is_image="{{order_item.stimulus.is_peg}}";
+
 	{% if order_item.stimulus.image %}
-	stimulus_images.push(new Image());
-	current_index=stimulus_images.length-1;
-	stimulus_images[current_index].src="{{order_item.stimulus.image.url}}";
+	image=new Image();
+	image.src="{{order_item.stimulus.image.url}}";
 	{% else %}
-	stimulus_images[current_index]=peg_image;
+	image=peg_image;
 	{% endif %}
-	stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,stimulus_images[current_index],image_scale,is_image);
+	stim_orders[stim_orders.length-1][stim_orders[stim_orders.length-1].length]=new Stimulus(label,peg_color,label_color,image,image_scale,is_image);
 	{% endfor %}
 	{% endfor %}
 	current_order=stim_orders[0];
@@ -795,7 +794,7 @@ It also sets the board image if a board image exists.*/
 	for(var i=0;i<current_order.length;i++){
 		$('#stimuliSelect').append("<option>"+current_order[i].stim_label+"</option>");
 	}
-	stimulus_images[current_index].onload=function(){
+	image.onload=function(){
 		reDrawCanvas();
 		redrawStim();
 	}
@@ -848,7 +847,7 @@ function colorToHex(red,green,blue) {
 */
 function drawImageX(image,xPos, yPos,scaler){
 	if(image){
-		if(image.src=="http://localhost:80/peg.png")
+		if(image.src=="http://localhost/peg.png")
 			c.drawImage(image,xPos-(image.width/4),yPos-(image.height/4),image.width/2,image.height/2);
 		else{
 			c.drawImage(image,xPos-(30*scaler/2),yPos-(30*scaler/2),(60*scaler/2),(60*scaler/2));
