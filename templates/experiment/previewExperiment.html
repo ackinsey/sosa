@@ -161,8 +161,17 @@ function loadSettings(previewIndex){
 		$('#GSliderBackgroundOutput').val("{{preview.background_color.green}}");
 
 		$('#shade').val("{{preview.shade}}");
+		$("#shadeSLiderLabel").val("{{preview.shade}}");
+		$("#shadeOutput").val("{{preview.shade}}");
+		
 		$('#size1').val("{{preview.size}}");
+		$("#sizeSLiderLabel").val("{{preview.size}}");
+		$("#sizeOutput").val("{{preview.size}}");
+		changeSize("{{preview.size}}");
+		
 		$('#position').val("{{preview.position}}");
+		$("#positionSLiderLabel").val("{{preview.position}}");
+		$("#positionOutput").val("{{preview.position}}");
 
 		{% if preview.show_label %}
 			$('#labelsShow').prop('checked',true);
